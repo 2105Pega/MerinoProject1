@@ -1,3 +1,9 @@
 body{
-    background-color:blue;
+    
+    background-image:url("aurora.jpg");
+    background-size: cover;
+}
+#app {
+    background-color:#a8c66c;
+    margin: 1% 7%;
 }
