@@ -4,11 +4,11 @@ function loginSubmit(event) {
     console.log("called loginSubmit");
     const user = {};
     user.userID = 0;
-    user.userType = 3;
     user.userName= document.getElementById("username").value;
     user.password= document.getElementById("password").value;
     user.firstName="default";
     user.lastName="default";
+    user.userType = 1;
     
     
 
