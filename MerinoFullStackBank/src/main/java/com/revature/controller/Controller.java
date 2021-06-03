@@ -25,9 +25,11 @@ public class Controller {
 	@Consumes(MediaType.APPLICATION_JSON)
 	public String login(User user) {
 		
-		User backendUser = uServ.getUser(user.getUserName());
+//		User backendUser = uServ.getUser(user.getUserName());
+		User backendUser = uServ.getUser("merinolu");
 		ObjectMapper mapper = new ObjectMapper();
-		
+		System.out.println(backendUser.toString());
+		System.out.println("here");
 		try {
 			return mapper.writeValueAsString(backendUser);
 		} catch (JsonProcessingException e) {

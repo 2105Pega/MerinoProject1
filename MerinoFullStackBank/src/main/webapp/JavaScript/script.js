@@ -4,12 +4,13 @@ function loginSubmit(event) {
     console.log("called loginSubmit");
     const user = {};
     user.userID = 0;
+    user.userType = 3;
     user.userName= document.getElementById("username").value;
     user.password= document.getElementById("password").value;
     user.firstName="default";
     user.lastName="default";
-    user.userType="1";
-
+    
+    
 
     var request = new XMLHttpRequest();
 
@@ -24,7 +25,7 @@ function loginSubmit(event) {
     var url = "http://localhost:8080/MerinoFullStackBank/api/controller/login";
     request.open("POST", url);
     console.log(JSON.stringify(user))
-    request.setRequestHeader('Content-Type', 'application/json')
+    request.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
     request.send(JSON.stringify(user));
     log.textContent = `Form Submitted! Time stamp: ${event.timeStamp}`;
 }
