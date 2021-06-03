@@ -7,3 +7,10 @@ body{
     background-color:#a8c66c;
     margin: 1% 7%;
 }
+#loginPage {
+    margin: 25%;
+    
+}
+#loginPage h3 {
+    text-align: center;
+}
