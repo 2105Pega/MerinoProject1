@@ -23,6 +23,8 @@ function loginSubmit(event) {
             var userResponse = JSON.parse(this.response);
             if(userResponse.fail = true){
                 log.textContent = userResponse.warning;
+            } else {
+                log.textContent = userResponse.username;
             }
             
             
