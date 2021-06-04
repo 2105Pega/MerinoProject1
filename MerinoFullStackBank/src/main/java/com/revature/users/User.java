@@ -36,6 +36,15 @@ public class User{
 		this.lastName = lastName;
 		this.userType = userType;
 	}
+	public User() {
+		this.userID = 100;
+		userName = "some";
+		password = "thing";
+		this.firstName = "for";
+		this.lastName = "default";
+		this.userType = 2;
+	}
+	
 	
 	public int getUserID() {
 		return userID;

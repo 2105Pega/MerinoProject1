@@ -22,7 +22,8 @@ public class ConnectionUtils {
 		String password = "";
 
 		try {
-			FileInputStream fis = new FileInputStream("../MerinoJDBCBank/src/main/resources/DB_properties.properties");
+			String propertiesPath = Thread.currentThread().getContextClassLoader().getResource("DB_properties.properties").getPath();
+			FileInputStream fis = new FileInputStream(propertiesPath);
 			Properties prop = new Properties();
 			prop.load(fis);
 			url = prop.getProperty("URL");
