@@ -7,10 +7,18 @@ body{
     background-color:#a8c66c;
     margin: 1% 7%;
 }
-#loginPage {
+#loginView {
     margin: 25%;
     
 }
-#loginPage h3 {
+#loginView h3 {
+    text-align: center;
+}
+
+#customerView {
+    margin: 25%;
+}
+
+#customerView h3 {
     text-align: center;
 }

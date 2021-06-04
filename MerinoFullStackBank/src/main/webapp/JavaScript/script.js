@@ -20,14 +20,16 @@ function loginSubmit(event) {
     request.onreadystatechange = function () {
 
         if (this.readyState == 4) {
-            var userResponse = JSON.parse(this.response);
+            const serverResponse = JSON.parse(this.response);
             console.log(JSON.parse(this.response))
-            console.log(userResponse);
-            if(userResponse.fail == true){
-                log.textContent = userResponse.warning;
+            console.log(serverResponse);
+            if(serverResponse.fail == true){
+                log.textContent = serverResponse.warning;
             } else {
-                console.log(userResponse.userName);
-                log.textContent = userResponse.userName;
+                console.log(serverResponse.userName);
+                state = serverResponse;
+                log.textContent = state.userName;
+                renderCustomer(state);
             }
             
             
@@ -39,9 +41,24 @@ function loginSubmit(event) {
     // request.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
     // request.send(JSON.stringify(user));
     request.send();
-    log.textContent = `Form Submitted! Time stamp: ${event.timeStamp}`;
+    log.textContent = `Submitted! Time stamp: ${event.timeStamp}`;
 }
 
 const form = document.getElementById("login");
 const log = document.getElementById("log");
 form.addEventListener('submit', loginSubmit);
+
+function renderCustomer(state) {
+    const customerView = document.createElement("div");
+    customerView.setAttribute("id", "customerView");
+    const welcome = document.createElement("h3");
+    welcome.innerHTML = "Welcome " + state.firstName + " " + state.lastName + ".";
+    customerView.appendChild(welcome);
+    const personal = document.createElement("p");
+    personal.innerHTML = "We have your personal information listed as: <br> " + state.firstName  + " " + state.lastName ;
+    customerView.appendChild(personal);
+
+    const app = document.querySelector("#app");
+    app.replaceChild(customerView,document.querySelector("#loginView"));
+
+}
