@@ -15,4 +15,9 @@ public class Response {
 	public String phone;
 	public ArrayList<Integer> accountList;
 	public int numberOfAccounts;
+	public Integer accountNumber;
+	public String accountType;
+	public double balance;
+	public String approved;
+	public ArrayList<Integer> customerList;
 }

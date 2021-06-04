@@ -1,15 +1,15 @@
 package com.revature.accounts;
 
 
-import java.io.Serializable;
+
 import java.util.ArrayList;
 
 
-public class Account implements Serializable {
+public class Account  {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -921326158968652254L;
+	
 	private final Integer accountNumber;
 	private final String accountType;
 	private double balance;

@@ -19,6 +19,6 @@ body{
     margin: 25%;
 }
 
-#customerView h3 {
+#customerView h3,h4 {
     text-align: center;
 }

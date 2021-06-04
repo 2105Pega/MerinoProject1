@@ -12,7 +12,9 @@ import javax.ws.rs.core.MediaType;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.revature.accounts.Account;
 import com.revature.responses.Response;
+import com.revature.services.AccountService;
 import com.revature.services.CustomerService;
 import com.revature.services.UserService;
 import com.revature.users.Customer;
@@ -25,6 +27,7 @@ public class Controller {
 	private static final Logger logger = LogManager.getLogger(Controller.class);
 	private UserService uServ = new UserService();
 	private CustomerService cServ = new CustomerService();
+	private AccountService accServ = new AccountService();
 
 //	@Path("/login")
 //	@POST
@@ -84,7 +87,7 @@ public class Controller {
 				Response response = new Response();
 				Customer backendCustomer = cServ.getCustomer(backendUser.getUserID());
 				response.fail = false;
-//				response.warning = "Successful";
+				response.warning = "Successful";
 				response.userID = backendCustomer.getUserID();
 				response.userName = backendCustomer.getUserName();
 				response.password = backendCustomer.getPassword();
@@ -105,8 +108,7 @@ public class Controller {
 					e.printStackTrace();
 				}
 			}
-			
-			
+
 		} else {
 			Response response = new Response();
 			response.fail = true;
@@ -123,4 +125,76 @@ public class Controller {
 		return "";
 
 	}
+
+	@Path("/account/{user}/{pass}/{acc}")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public String account(@PathParam("user") String user, @PathParam("pass") String pass, @PathParam("acc") int acc) {
+		User backendUser = uServ.getUser(user);
+		if (backendUser == null) {
+			Response response = new Response();
+			response.fail = true;
+			response.warning = "Username doesn't exist.";
+			ObjectMapper mapper = new ObjectMapper();
+			try {
+				return mapper.writeValueAsString(response);
+			} catch (JsonProcessingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		if (pass.equals(backendUser.getPassword())) {
+			if (backendUser.getUserType() == 1) {
+
+				Response response = new Response();
+				Customer backendCustomer = cServ.getCustomer(backendUser.getUserID());
+				if (backendCustomer.getAccountList().contains(acc)) {
+					Account backendAcc = accServ.getAccount(acc);
+
+					response.fail = false;
+					response.warning = "Successfully got the account";
+					response.accountNumber = backendAcc.getAccountNumber();
+					response.accountType = backendAcc.getAccountType();
+					response.balance = backendAcc.getBalance();
+					response.approved = backendAcc.getApproved();
+					response.customerList = backendAcc.getCustomerList();
+					ObjectMapper mapper = new ObjectMapper();
+
+					try {
+						return mapper.writeValueAsString(response);
+					} catch (JsonProcessingException e) {
+						// TODO Auto-generated catch block
+
+						e.printStackTrace();
+					}
+				} else {
+					
+					response.fail = true;
+					response.warning = "User doesn't own this account.";
+					ObjectMapper mapper = new ObjectMapper();
+					try {
+						return mapper.writeValueAsString(response);
+					} catch (JsonProcessingException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
+
+		} else {
+			Response response = new Response();
+			response.fail = true;
+			response.warning = "Username/Password didn't match.";
+			ObjectMapper mapper = new ObjectMapper();
+			try {
+				return mapper.writeValueAsString(response);
+			} catch (JsonProcessingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+		}
+		return "";
+	}
+
 }
