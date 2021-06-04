@@ -18,8 +18,13 @@ function loginSubmit(event) {
 
         if (this.readyState == 4) {
             var userResponse = JSON.parse(this.response);
-            console.log(userResponse);
-            log.textContent = JSON.parse(this.response);
+            if(userResponse.fail = true){
+                console.log(userResponse);
+                console.log(userResponse.warning);
+                log.textContent = userResponse.warning;
+            }
+            
+            
         }
     }
     var url = "http://localhost:8080/MerinoFullStackBank/api/controller/login";
