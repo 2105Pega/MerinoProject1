@@ -1,16 +1,19 @@
 
+let state;
+
 function loginSubmit(event) {
     event.preventDefault();
     console.log("called loginSubmit");
-    const user = {};
-    user.userID = 0;
-    user.userName= document.getElementById("username").value;
-    user.password= document.getElementById("password").value;
-    user.firstName="default";
-    user.lastName="default";
-    user.userType = 1;
+    // const user = {};
+    // user.userID = 0;
+    // user.userName= document.getElementById("username").value;
+    // user.password= document.getElementById("password").value;
+    // user.firstName="default";
+    // user.lastName="default";
+    // user.userType = 1;
     
-    
+    const userName = document.getElementById("username").value;
+    const password = document.getElementById("password").value;
 
     var request = new XMLHttpRequest();
 
@@ -19,19 +22,18 @@ function loginSubmit(event) {
         if (this.readyState == 4) {
             var userResponse = JSON.parse(this.response);
             if(userResponse.fail = true){
-                console.log(userResponse);
-                console.log(userResponse.warning);
                 log.textContent = userResponse.warning;
             }
             
             
         }
     }
-    var url = "http://localhost:8080/MerinoFullStackBank/api/controller/login";
-    request.open("POST", url);
-    console.log(JSON.stringify(user))
-    request.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
-    request.send(JSON.stringify(user));
+    var url = "http://localhost:8080/MerinoFullStackBank/api/controller/login/" + userName + "/" + password;
+    request.open("GET", url);
+    // console.log(JSON.stringify(user))
+    // request.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
+    // request.send(JSON.stringify(user));
+    request.send();
     log.textContent = `Form Submitted! Time stamp: ${event.timeStamp}`;
 }
 
