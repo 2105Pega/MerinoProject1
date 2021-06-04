@@ -21,10 +21,13 @@ function loginSubmit(event) {
 
         if (this.readyState == 4) {
             var userResponse = JSON.parse(this.response);
-            if(userResponse.fail = true){
+            console.log(JSON.parse(this.response))
+            console.log(userResponse);
+            if(userResponse.fail == true){
                 log.textContent = userResponse.warning;
             } else {
-                log.textContent = userResponse.username;
+                console.log(userResponse.userName);
+                log.textContent = userResponse.userName;
             }
             
             

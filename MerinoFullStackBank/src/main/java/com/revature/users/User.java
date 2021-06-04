@@ -93,11 +93,11 @@ public class User{
 		userType = 1;
 	}
 	
-//	@Override
-//	public String toString() {
-//		return "User [userName=" + userName + ", firstName=" + firstName + ", lastName="
-//				+ lastName + ", userID=" + userID + ", userType=" + userType + "]";
-//	}
+	@Override
+	public String toString() {
+		return "User [userName=" + userName + ", firstName=" + firstName + ", lastName="
+				+ lastName + ", userID=" + userID + ", userType=" + userType + "]";
+	}
 	
 	
 }

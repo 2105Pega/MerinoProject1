@@ -4,39 +4,108 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.revature.responses.Response;
+import com.revature.services.CustomerService;
 import com.revature.services.UserService;
+import com.revature.users.Customer;
 import com.revature.users.User;
 
 @Path("/controller")
 public class Controller {
-	
+
 	private UserService uServ = new UserService();
-	
-	
-	
-	@Path("/login")
-	@POST
-	@Produces(MediaType.APPLICATION_JSON)
-	@Consumes(MediaType.APPLICATION_JSON)
-	public String login(User user) {
-		
+	private CustomerService cServ = new CustomerService();
+
+//	@Path("/login")
+//	@POST
+//	@Produces(MediaType.APPLICATION_JSON)
+//	@Consumes(MediaType.APPLICATION_JSON)
+//	public String login(User user) {
+//
 //		User backendUser = uServ.getUser(user.getUserName());
-		User backendUser = uServ.getUser("merinolu");
-		ObjectMapper mapper = new ObjectMapper();
-		System.out.println(backendUser.toString());
-		System.out.println("here");
-		try {
-			return mapper.writeValueAsString(backendUser);
-		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
+//		if (user.getPassword().equals(backendUser.getPassword())) {
+//
+//			ObjectMapper mapper = new ObjectMapper();
+//
+//			try {
+//				return mapper.writeValueAsString(backendUser);
+//			} catch (JsonProcessingException e) {
+//				// TODO Auto-generated catch block
+//
+//				e.printStackTrace();
+//			}
+//		} else {
+//			Response response = new Response();
+//			response.fail = true;
+//			response.warning = "Username/Password didn't match";
+//			ObjectMapper mapper = new ObjectMapper();
+//			try {
+//				return mapper.writeValueAsString(response);
+//			} catch (JsonProcessingException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//
+//		}
+//		return "";
+//
+//	}
+
+	@Path("/login/{user}/{pass}")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public String login(@PathParam("user") String user, @PathParam("pass") String pass) {
+
+		User backendUser = uServ.getUser(user);
+		if (backendUser == null) {
+			Response response = new Response();
+			response.fail = true;
+			response.warning = "Username doesn't exist.";
+			ObjectMapper mapper = new ObjectMapper();
+			try {
+				return mapper.writeValueAsString(response);
+			} catch (JsonProcessingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		if (pass.equals(backendUser.getPassword())) {
+			if (backendUser.getUserType() == 1) {
+				Response response = new Response();
+				Customer backendCustomer = cServ.getCustomer(backendUser.getUserID());
+				
+				ObjectMapper mapper = new ObjectMapper();
+
+				try {
+					return mapper.writeValueAsString(backendUser);
+				} catch (JsonProcessingException e) {
+					// TODO Auto-generated catch block
+
+					e.printStackTrace();
+				}
+			}
 			
-			e.printStackTrace();
-		} return "";
+			
+		} else {
+			Response response = new Response();
+			response.fail = true;
+			response.warning = "Username/Password didn't match.";
+			ObjectMapper mapper = new ObjectMapper();
+			try {
+				return mapper.writeValueAsString(response);
+			} catch (JsonProcessingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+		}
+		return "";
+
 	}
-	
 }

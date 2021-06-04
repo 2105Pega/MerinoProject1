@@ -19,6 +19,7 @@
   		<param-value>com.revature.controller</param-value>
   	
   	</init-param>
+    	<load-on-startup>1</load-on-startup>
   </servlet>
   
   <servlet-mapping>
