@@ -48,6 +48,12 @@ const form = document.getElementById("login");
 const log = document.getElementById("log");
 form.addEventListener('submit', loginSubmit);
 
+const create = document.getElementById("create");
+create.addEventListener("click", (event) => {
+    renderCreate();
+})
+
+
 function renderCustomer(state) {
     const customerView = document.createElement("div");
     customerView.setAttribute("id", "customerView");
@@ -299,6 +305,177 @@ function renderOpen() {
 
     const app = document.querySelector("#app");
     app.replaceChild(openView, document.querySelector("#app").firstElementChild);
+}
+
+function renderCreate() {
+    const createView = document.createElement("div");
+    createView.setAttribute("id", "createView");
+
+    const welcome = document.createElement("h3");
+    welcome.innerHTML = "Please complete this form to create a new user.";
+    createView.appendChild(welcome);
+
+
+    const form = document.createElement("form");
+    form.setAttribute("id", "createForm");
+    form.setAttribute("method", "POST");
+    const url = "http://localhost:8080/MerinoFullStackBank/api/controller/create";
+
+    form.setAttribute("action", url);
+    form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const createCus = {}
+        
+        
+        createCus.user = document.getElementById("user").value;
+        createCus.password = document.getElementById("password").value;
+        createCus.fName = document.getElementById("fName").value;
+        createCus.lName = document.getElementById("lName").value;
+        const confirmPassword = document.getElementById("confirmPassword").value;
+        if(confirmPassword != createCus.password) {
+            log.textContent = "The passwords didn't match";
+            return;
+        }
+
+        // disable default action
+        event.preventDefault();
+
+        // configure a request
+        
+
+        const request = new XMLHttpRequest();
+        var url = "http://localhost:8080/MerinoFullStackBank/api/controller/create";
+        request.open("POST", url);
+
+
+
+
+        // prepare form data
+        // let data = new FormData(form);
+
+        // for (var pair of data.entries()) {
+        //     console.log(pair[0] + ', ' + pair[1]);
+        // }
+
+        // set headers
+        // request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        // request.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+
+        console.log(JSON.stringify(createCus))
+        request.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
+        // send request
+        request.send(JSON.stringify(createCus));
+
+        
+        // request.send(data);
+
+        request.onreadystatechange = function () {
+
+            if (this.readyState == 4) {
+                const serverResponse = JSON.parse(this.response);
+                console.log(JSON.parse(this.response))
+                console.log(serverResponse);
+                if (serverResponse.fail == true) {
+                    log.textContent = serverResponse.warning;
+                } else {
+                    console.log(serverResponse.userName);
+                    state = serverResponse;
+                    log.textContent = state.userName;
+                    renderCustomer(state);
+                }
+
+
+            }
+        }
+
+
+    });
+
+
+    const userMessage = document.createElement("p");
+    userMessage.innerHTML = "Please type your desired username.";
+    form.appendChild(userMessage);
+
+    const user = document.createElement("input");
+    user.setAttribute("type", "text");
+    user.setAttribute("id", "user");
+    user.setAttribute("name", "user");
+    user.setAttribute("maxlength", "26");
+    user.required = true;
+    form.appendChild(user);
+
+    const passwordMessage = document.createElement("p");
+    passwordMessage.innerHTML = "Please type your desired password. <br>";
+    form.appendChild(passwordMessage);
+
+
+    const password = document.createElement("input");
+    password.setAttribute("type", "password");
+    password.setAttribute("id", "password");
+    password.setAttribute("name", "password");
+    password.setAttribute("maxlength", "26");
+    password.required = true;
+    form.appendChild(password);
+
+    const passwordMessage2 = document.createElement("p");
+    passwordMessage2.innerHTML = "Please confirm your desired password. <br>";
+    form.appendChild(passwordMessage2);
+
+
+    const confirmPassword = document.createElement("input");
+    confirmPassword.setAttribute("type", "password");
+    confirmPassword.setAttribute("id", "confirmPassword");
+    confirmPassword.setAttribute("name", "confirmPassword");
+    confirmPassword.setAttribute("maxlength", "26");
+    confirmPassword.required = true;
+    form.appendChild(confirmPassword);
+
+    const fNameMessage = document.createElement("p");
+    fNameMessage.innerHTML = "Please write your first name. <br>"
+    form.appendChild(fNameMessage);
+
+    const fName = document.createElement("input");
+    fName.setAttribute("type", "text");
+    fName.setAttribute("id", "fName");
+    fName.setAttribute("name", "fName");
+    fName.setAttribute("maxlength", "26");
+    fName.required = true;
+    form.appendChild(fName);
+
+    const lNameMessage = document.createElement("p");
+    lNameMessage.innerHTML = "Please write your last name. <br>"
+    form.appendChild(lNameMessage);
+
+    const lName = document.createElement("input");
+    lName.setAttribute("type", "text");
+    lName.setAttribute("id", "lName");
+    lName.setAttribute("name", "lName");
+    lName.setAttribute("maxlength", "26");
+    lName.required = true;
+    form.appendChild(lName);
+
+    form.appendChild(document.createElement("br"));
+    form.appendChild(document.createElement("br"));
+    const submit = document.createElement("button");
+    submit.setAttribute("type", "submit");
+    submit.setAttribute("role", "button");
+    submit.innerHTML = "Submit account application";
+    form.appendChild(submit);
+
+    const returnCustomer = document.createElement("button");
+    returnCustomer.innerHTML = "Return to login view";
+    returnCustomer.addEventListener("click", (event) => {
+        window.location.href= "http://localhost:8080/MerinoFullStackBank/";
+    })
+    form.appendChild(returnCustomer);
+
+    createView.appendChild(form);
+
+    const log = document.createElement("p");
+    createView.appendChild(log);
+
+    const app = document.querySelector("#app");
+    app.replaceChild(createView, document.querySelector("#app").firstElementChild);
 }
 // function openSubmit(event) {
 //     event.preventDefault();
