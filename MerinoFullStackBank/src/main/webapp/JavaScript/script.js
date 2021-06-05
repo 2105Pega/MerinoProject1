@@ -693,7 +693,7 @@ function renderTransfer() {
     transferView.setAttribute("id", "transferView");
 
     const amountText = document.createElement("p");
-    amountText.innerHTML = "Please type the amount you wish to deposit. <br>";
+    amountText.innerHTML = "Please type the amount you wish to transfer. <br>";
     transferView.appendChild(amountText);
 
     const dollarSign = document.createElement("span");

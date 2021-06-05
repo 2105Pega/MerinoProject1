@@ -21,6 +21,7 @@ import com.revature.services.AccountService;
 import com.revature.services.CustomerService;
 import com.revature.services.UserService;
 import com.revature.services.tServices;
+import com.revature.transactions.TransferAttempt;
 import com.revature.transactions.WithdrawDepositAttempt;
 import com.revature.users.CreateCustomer;
 import com.revature.users.Customer;
@@ -594,6 +595,98 @@ public class Controller {
 				if (backendCustomer.getAccountList().contains(depAttempt.accNumber)) {
 					try {
 						String result = tServ.deposit(depAttempt.amount, depAttempt.accNumber);
+						
+
+						Response response = new Response();
+						response.fail = false;
+						response.warning = "Successful";
+						response.userID = backendCustomer.getUserID();
+						response.userName = backendCustomer.getUserName();
+						response.password = backendCustomer.getPassword();
+						response.firstName = backendCustomer.getFirstName();
+						response.lastName = backendCustomer.getLastName();
+						response.userType = 1;
+						response.address = backendCustomer.getAddress();
+						response.phone = backendCustomer.getPhone();
+						response.accountList = backendCustomer.getAccountList();
+						response.numberOfAccounts = backendCustomer.getNumberOfAccounts();
+						ObjectMapper mapper = new ObjectMapper();
+
+						try {
+							return mapper.writeValueAsString(response);
+						} catch (JsonProcessingException e) {
+							// TODO Auto-generated catch block
+
+							e.printStackTrace();
+						}
+					} catch (InvalidActionException e) {
+						// TODO Auto-generated catch block
+						Response response = new Response();
+						response.fail = true;
+						response.warning = e.getMessage();
+						ObjectMapper mapper = new ObjectMapper();
+						try {
+							return mapper.writeValueAsString(response);
+						} catch (JsonProcessingException e1) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+				} else {
+					Response response = new Response();
+					response.fail = true;
+					response.warning = "Provided user does not own this account.";
+					ObjectMapper mapper = new ObjectMapper();
+					try {
+						return mapper.writeValueAsString(response);
+					} catch (JsonProcessingException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+
+			}
+		}
+
+		return "";
+	}
+	
+	@Path("/transfer")
+	@PUT
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public String transfer(TransferAttempt transAttempt) {
+		User backendUser = uServ.getUser(transAttempt.userName);
+		System.out.println("Jersey transAttempt: " + transAttempt.userName + ", password: " + transAttempt.password
+				+ ", amount:" + transAttempt.amount + ", senderNumber:" + transAttempt.senderNumber  + ", receiverNumber:" + transAttempt.receiverNumber);
+		if (backendUser == null) {
+			Response response = new Response();
+			response.fail = true;
+			response.warning = "User for deposit attempt could not be found.";
+			ObjectMapper mapper = new ObjectMapper();
+			try {
+				return mapper.writeValueAsString(response);
+			} catch (JsonProcessingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} else {
+			if (!backendUser.getPassword().equals(transAttempt.password)) {
+				Response response = new Response();
+				response.fail = true;
+				response.warning = "User and password for deposit did not match.";
+				ObjectMapper mapper = new ObjectMapper();
+				try {
+					return mapper.writeValueAsString(response);
+				} catch (JsonProcessingException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			} else {
+				Customer backendCustomer = cServ.getCustomer(backendUser.getUserID());
+				if (backendCustomer.getAccountList().contains(transAttempt.senderNumber)) {
+					try {
+						String result = tServ.transfer(transAttempt.amount, transAttempt.senderNumber, transAttempt.receiverNumber);
 						
 
 						Response response = new Response();
