@@ -17,10 +17,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.revature.accounts.Account;
 import com.revature.accounts.OpenAccount;
+import com.revature.exceptions.InvalidActionException;
 import com.revature.responses.Response;
 import com.revature.services.AccountService;
 import com.revature.services.CustomerService;
 import com.revature.services.UserService;
+import com.revature.services.tServices;
 import com.revature.transactions.WithdrawAttempt;
 import com.revature.users.CreateCustomer;
 import com.revature.users.Customer;
@@ -34,6 +36,7 @@ public class Controller {
 	private UserService uServ = new UserService();
 	private CustomerService cServ = new CustomerService();
 	private AccountService accServ = new AccountService();
+	private tServices tServ = new tServices();
 
 //	@Path("/login")
 //	@POST
@@ -88,7 +91,7 @@ public class Controller {
 				e.printStackTrace();
 			}
 		}
-		
+
 		if (pass.equals(backendUser.getPassword())) {
 			if (backendUser.getUserType() == 1) {
 				Response response = new Response();
@@ -208,13 +211,12 @@ public class Controller {
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	
+
 //	public String openAccount(@FormParam("accType") String accType, @FormParam("balance") double balance, @DefaultValue("0")@FormParam("joint") int joint, @PathParam("user") String user, @PathParam("pass") String pass) {
-	public String openAccount(OpenAccount openAcc, @PathParam("user") String user,
-			@PathParam("pass") String pass) {
+	public String openAccount(OpenAccount openAcc, @PathParam("user") String user, @PathParam("pass") String pass) {
 		User backendUser = uServ.getUser(user);
-		System.out.println("Jersey accType: " + openAcc.accType + ", balance: " + openAcc.balance + ", joint:" + openAcc.joint
-				+ ", path params user: " + user + ", pass: " + pass);
+		System.out.println("Jersey accType: " + openAcc.accType + ", balance: " + openAcc.balance + ", joint:"
+				+ openAcc.joint + ", path params user: " + user + ", pass: " + pass);
 		if (backendUser == null) {
 			Response response = new Response();
 			response.fail = true;
@@ -226,7 +228,7 @@ public class Controller {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		} 
+		}
 		if (backendUser.getUserID() == openAcc.joint) {
 			Response response = new Response();
 			response.fail = true;
@@ -403,15 +405,15 @@ public class Controller {
 
 		return "";
 	}
-	
-	
+
 	@Path("/create")
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public String createCustomer(CreateCustomer createCus) {
 		User backendUser = uServ.getUser(createCus.user);
-		System.out.println("Jersey createCus: " + createCus.user + ", password: " + createCus.password + ", fName:" + createCus.fName  + ", lName:" + createCus.lName);
+		System.out.println("Jersey createCus: " + createCus.user + ", password: " + createCus.password + ", fName:"
+				+ createCus.fName + ", lName:" + createCus.lName);
 		if (backendUser != null) {
 			Response response = new Response();
 			response.fail = true;
@@ -449,7 +451,7 @@ public class Controller {
 
 					e.printStackTrace();
 				}
-				
+
 			} else {
 				Response response = new Response();
 				response.fail = true;
@@ -463,22 +465,22 @@ public class Controller {
 				}
 			}
 		}
-		
 
 		return "";
 	}
-	
+
 	@Path("/withdraw")
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public String withdraw(WithdrawAttempt withAttempt) {
-		User backendUser = uServ.getUser(createCus.user);
-		System.out.println("Jersey createCus: " + createCus.user + ", password: " + createCus.password + ", fName:" + createCus.fName  + ", lName:" + createCus.lName);
-		if (backendUser != null) {
+		User backendUser = uServ.getUser(withAttempt.userName);
+		System.out.println("Jersey withAttempt: " + withAttempt.userName + ", password: " + withAttempt.password
+				+ ", amount:" + withAttempt.amount + ", accNumber:" + withAttempt.accNumber);
+		if (backendUser == null) {
 			Response response = new Response();
 			response.fail = true;
-			response.warning = "Username already exists.";
+			response.warning = "User for withdrawl attempt could not be found.";
 			ObjectMapper mapper = new ObjectMapper();
 			try {
 				return mapper.writeValueAsString(response);
@@ -487,36 +489,10 @@ public class Controller {
 				e.printStackTrace();
 			}
 		} else {
-			if (cServ.createCustomer(createCus.user, createCus.password, createCus.fName, createCus.lName)) {
-				backendUser = uServ.getUser(createCus.user);
-				Response response = new Response();
-				Customer backendCustomer = cServ.getCustomer(backendUser.getUserID());
-				response.fail = false;
-				response.warning = "Successful";
-				response.userID = backendCustomer.getUserID();
-				response.userName = backendCustomer.getUserName();
-				response.password = backendCustomer.getPassword();
-				response.firstName = backendCustomer.getFirstName();
-				response.lastName = backendCustomer.getLastName();
-				response.userType = 1;
-				response.address = backendCustomer.getAddress();
-				response.phone = backendCustomer.getPhone();
-				response.accountList = backendCustomer.getAccountList();
-				response.numberOfAccounts = backendCustomer.getNumberOfAccounts();
-				ObjectMapper mapper = new ObjectMapper();
-
-				try {
-					return mapper.writeValueAsString(response);
-				} catch (JsonProcessingException e) {
-					// TODO Auto-generated catch block
-
-					e.printStackTrace();
-				}
-				
-			} else {
+			if (!backendUser.getPassword().equals(withAttempt.password)) {
 				Response response = new Response();
 				response.fail = true;
-				response.warning = "Server was unable to create the user.";
+				response.warning = "User and password for withdrawl did not match.";
 				ObjectMapper mapper = new ObjectMapper();
 				try {
 					return mapper.writeValueAsString(response);
@@ -524,9 +500,63 @@ public class Controller {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+			} else {
+				Customer backendCustomer = cServ.getCustomer(backendUser.getUserID());
+				if (backendCustomer.getAccountList().contains(withAttempt.accNumber)) {
+					try {
+						String result = tServ.withdraw(withAttempt.amount, withAttempt.accNumber);
+						logger.trace("Withdrawl attempt was made. Result: " + result);
+
+						Response response = new Response();
+						response.fail = false;
+						response.warning = "Successful";
+						response.userID = backendCustomer.getUserID();
+						response.userName = backendCustomer.getUserName();
+						response.password = backendCustomer.getPassword();
+						response.firstName = backendCustomer.getFirstName();
+						response.lastName = backendCustomer.getLastName();
+						response.userType = 1;
+						response.address = backendCustomer.getAddress();
+						response.phone = backendCustomer.getPhone();
+						response.accountList = backendCustomer.getAccountList();
+						response.numberOfAccounts = backendCustomer.getNumberOfAccounts();
+						ObjectMapper mapper = new ObjectMapper();
+
+						try {
+							return mapper.writeValueAsString(response);
+						} catch (JsonProcessingException e) {
+							// TODO Auto-generated catch block
+
+							e.printStackTrace();
+						}
+					} catch (InvalidActionException e) {
+						// TODO Auto-generated catch block
+						Response response = new Response();
+						response.fail = true;
+						response.warning = e.getMessage();
+						ObjectMapper mapper = new ObjectMapper();
+						try {
+							return mapper.writeValueAsString(response);
+						} catch (JsonProcessingException e1) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+				} else {
+					Response response = new Response();
+					response.fail = true;
+					response.warning = "Provided user does not own this account.";
+					ObjectMapper mapper = new ObjectMapper();
+					try {
+						return mapper.writeValueAsString(response);
+					} catch (JsonProcessingException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+
 			}
 		}
-		
 
 		return "";
 	}
