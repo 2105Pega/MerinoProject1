@@ -1,7 +1,10 @@
 package com.revature.services;
 
-import com.revature.accounts.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
+import com.revature.accounts.*;
+import com.revature.controller.Controller;
 import com.revature.dao.TDAO;
 import com.revature.dao.TDAOImpl;
 import com.revature.exceptions.InvalidActionException;
@@ -9,7 +12,8 @@ import com.revature.exceptions.InvalidActionException;
 public class tServices {
 	private TDAO tDao = new TDAOImpl();
 	private AccountService accServ = new AccountService();
-
+	private static final Logger logger = LogManager.getLogger(tServices.class);
+	
 	public String withdraw(double amount, int accNumber) throws InvalidActionException {
 		Account account = accServ.getAccount(accNumber);
 		if(account == null) {
@@ -26,10 +30,11 @@ public class tServices {
 				if (tDao.withdraw(accNumber, amount)) {
 					double oldBalance = account.getBalance();
 					account = accServ.getAccount(accNumber);
-
-					return "Account [" + account.getAccountNumber() + "] had an account balance of " + oldBalance
+					String result = "Account [" + account.getAccountNumber() + "] had an account balance of " + oldBalance
 							+ " and a withdrawal of " + amount + " was made. The new balance is: "
 							+ account.getBalance() + ".";
+					logger.trace("Withdrawl attempt was made. Result: " + result);
+					return result;
 				} else {
 					return "The withdrawl was unsuccessful";
 				}
@@ -55,10 +60,11 @@ public class tServices {
 			if (tDao.deposit(accNumber, amount)) {
 				double oldBalance = account.getBalance();
 				account = accServ.getAccount(accNumber);
-
-				return "Account [" + account.getAccountNumber() + "] had an account balance of " + oldBalance
+				String result = "Account [" + account.getAccountNumber() + "] had an account balance of " + oldBalance
 						+ " and a deposit of " + amount + " was made. The new balance is: "
 						+ account.getBalance() + ".";
+				logger.trace("Withdrawl attempt was made. Result: " + result);
+				return result;
 			} else {
 				return "The deposit was unsuccessful";
 			}

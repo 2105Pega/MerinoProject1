@@ -1,10 +1,8 @@
 package com.revature.controller;
 
-import java.util.ArrayList;
+
 
 import javax.ws.rs.Consumes;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -23,7 +21,7 @@ import com.revature.services.AccountService;
 import com.revature.services.CustomerService;
 import com.revature.services.UserService;
 import com.revature.services.tServices;
-import com.revature.transactions.WithdrawAttempt;
+import com.revature.transactions.WithdrawDepositAttempt;
 import com.revature.users.CreateCustomer;
 import com.revature.users.Customer;
 import com.revature.users.User;
@@ -32,7 +30,7 @@ import org.apache.logging.log4j.Logger;
 
 @Path("/controller")
 public class Controller {
-	private static final Logger logger = LogManager.getLogger(Controller.class);
+	
 	private UserService uServ = new UserService();
 	private CustomerService cServ = new CustomerService();
 	private AccountService accServ = new AccountService();
@@ -473,7 +471,7 @@ public class Controller {
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public String withdraw(WithdrawAttempt withAttempt) {
+	public String withdraw(WithdrawDepositAttempt withAttempt) {
 		User backendUser = uServ.getUser(withAttempt.userName);
 		System.out.println("Jersey withAttempt: " + withAttempt.userName + ", password: " + withAttempt.password
 				+ ", amount:" + withAttempt.amount + ", accNumber:" + withAttempt.accNumber);
@@ -505,7 +503,98 @@ public class Controller {
 				if (backendCustomer.getAccountList().contains(withAttempt.accNumber)) {
 					try {
 						String result = tServ.withdraw(withAttempt.amount, withAttempt.accNumber);
-						logger.trace("Withdrawl attempt was made. Result: " + result);
+						
+
+						Response response = new Response();
+						response.fail = false;
+						response.warning = "Successful";
+						response.userID = backendCustomer.getUserID();
+						response.userName = backendCustomer.getUserName();
+						response.password = backendCustomer.getPassword();
+						response.firstName = backendCustomer.getFirstName();
+						response.lastName = backendCustomer.getLastName();
+						response.userType = 1;
+						response.address = backendCustomer.getAddress();
+						response.phone = backendCustomer.getPhone();
+						response.accountList = backendCustomer.getAccountList();
+						response.numberOfAccounts = backendCustomer.getNumberOfAccounts();
+						ObjectMapper mapper = new ObjectMapper();
+
+						try {
+							return mapper.writeValueAsString(response);
+						} catch (JsonProcessingException e) {
+							// TODO Auto-generated catch block
+
+							e.printStackTrace();
+						}
+					} catch (InvalidActionException e) {
+						// TODO Auto-generated catch block
+						Response response = new Response();
+						response.fail = true;
+						response.warning = e.getMessage();
+						ObjectMapper mapper = new ObjectMapper();
+						try {
+							return mapper.writeValueAsString(response);
+						} catch (JsonProcessingException e1) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+				} else {
+					Response response = new Response();
+					response.fail = true;
+					response.warning = "Provided user does not own this account.";
+					ObjectMapper mapper = new ObjectMapper();
+					try {
+						return mapper.writeValueAsString(response);
+					} catch (JsonProcessingException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+
+			}
+		}
+
+		return "";
+	}
+	@Path("/deposit")
+	@PUT
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public String deposit(WithdrawDepositAttempt depAttempt) {
+		User backendUser = uServ.getUser(depAttempt.userName);
+		System.out.println("Jersey depAttempt: " + depAttempt.userName + ", password: " + depAttempt.password
+				+ ", amount:" + depAttempt.amount + ", accNumber:" + depAttempt.accNumber);
+		if (backendUser == null) {
+			Response response = new Response();
+			response.fail = true;
+			response.warning = "User for deposit attempt could not be found.";
+			ObjectMapper mapper = new ObjectMapper();
+			try {
+				return mapper.writeValueAsString(response);
+			} catch (JsonProcessingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} else {
+			if (!backendUser.getPassword().equals(depAttempt.password)) {
+				Response response = new Response();
+				response.fail = true;
+				response.warning = "User and password for deposit did not match.";
+				ObjectMapper mapper = new ObjectMapper();
+				try {
+					return mapper.writeValueAsString(response);
+				} catch (JsonProcessingException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			} else {
+				Customer backendCustomer = cServ.getCustomer(backendUser.getUserID());
+				if (backendCustomer.getAccountList().contains(depAttempt.accNumber)) {
+					try {
+						String result = tServ.deposit(depAttempt.amount, depAttempt.accNumber);
+						
 
 						Response response = new Response();
 						response.fail = false;
