@@ -144,6 +144,11 @@ function renderCustomer(state) {
     customerView.appendChild(depositButton);
     depositButton.addEventListener("click", renderDeposit);
 
+    const transferButton = document.createElement("button");
+    transferButton.innerHTML = "Transfer";
+    customerView.appendChild(transferButton);
+    transferButton.addEventListener("click", renderTransfer);
+
     const logger = document.createElement("p");
     customerView.appendChild(logger);
 
@@ -536,7 +541,7 @@ function renderWithdraw() {
         event.preventDefault();
         
         if(document.getElementById("amount").value == null || document.getElementById("amount").value == 0 || document.getElementById("accNumber").value == null ||document.getElementById("accNumber").value == 0){
-            log.textContent = "Please enter an amount and account number";
+            log.textContent = "Please enter an amount and account number.";
             return;
         }
         
@@ -630,7 +635,7 @@ function renderDeposit() {
         event.preventDefault();
         
         if(document.getElementById("amount").value == null || document.getElementById("amount").value == 0 || document.getElementById("accNumber").value == null ||document.getElementById("accNumber").value == 0){
-            log.textContent = "Please enter an amount and account number";
+            log.textContent = "Please enter an amount and account number.";
             return;
         }
         
@@ -681,6 +686,112 @@ function renderDeposit() {
 
     const transaction = document.querySelector("#transaction");
     transaction.replaceChild(depositView, document.querySelector("#transaction").firstElementChild);
+}
+
+function renderTransfer() {
+    const transferView = document.createElement("div");
+    transferView.setAttribute("id", "transferView");
+
+    const amountText = document.createElement("p");
+    amountText.innerHTML = "Please type the amount you wish to deposit. <br>";
+    transferView.appendChild(amountText);
+
+    const dollarSign = document.createElement("span");
+    dollarSign.innerHTML = "$";
+    transferView.appendChild(dollarSign);
+
+    const amount = document.createElement("input");
+    amount.setAttribute("type", "number");
+    amount.setAttribute("id", "amount");
+    amount.setAttribute("name", "amount");
+    amount.setAttribute("step", "0.01");
+    amount.required = true;
+    transferView.appendChild(amount);
+
+    const senderMessage = document.createElement("p");
+    senderMessage.innerHTML = "Please type the account number you wish to transfer from."
+    transferView.appendChild(senderMessage);
+
+    const senderNumber = document.createElement("input");
+    senderNumber.setAttribute("type", "number");
+    senderNumber.setAttribute("name", "senderNumber");
+    senderNumber.setAttribute("id", "senderNumber");
+    senderNumber.required = true;
+    transferView.appendChild(senderNumber);
+
+    const receiverMessage = document.createElement("p");
+    receiverMessage.innerHTML = "Please type the account number you wish to transfer into."
+    transferView.appendChild(receiverMessage);
+
+    const receiverNumber = document.createElement("input");
+    receiverNumber.setAttribute("type", "number");
+    receiverNumber.setAttribute("name", "receiverNumber");
+    receiverNumber.setAttribute("id", "receiverNumber");
+    receiverNumber.required = true;
+    transferView.appendChild(receiverNumber);
+
+    transferView.appendChild(document.createElement("br"));
+    transferView.appendChild(document.createElement("br"));
+    const transfer = document.createElement("button");
+    transfer.setAttribute("type", "button");
+    transfer.innerHTML = "Transfer funds";
+
+    transfer.addEventListener("click", (event)=>{
+        event.preventDefault();
+        
+        if(document.getElementById("amount").value == null || document.getElementById("amount").value == 0 || document.getElementById("senderNumber").value == null ||document.getElementById("senderNumber").value == 0 || document.getElementById("receiverNumber").value == null ||document.getElementById("receiverNumber").value == 0){
+            log.textContent = "Please enter an amount and both account numbers.";
+            return;
+        }
+        
+        const transAttempt = {}
+        transAttempt.userName = state.userName;
+        transAttempt.password = state.password;
+        transAttempt.amount = document.getElementById("amount").value;
+        transAttempt.senderNumber = document.getElementById("senderNumber").value;
+        transAttempt.receiverNumber = document.getElementById("receiverNumber").value;
+
+
+        const request = new XMLHttpRequest();
+        var url = "http://localhost:8080/MerinoFullStackBank/api/controller/transfer";
+        request.open("PUT", url);
+
+
+
+        console.log(JSON.stringify(transAttempt))
+        request.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
+        
+        request.send(JSON.stringify(transAttempt));
+
+
+        request.onreadystatechange = function () {
+
+            if (this.readyState == 4) {
+                const serverResponse = JSON.parse(this.response);
+                console.log(JSON.parse(this.response))
+                console.log(serverResponse);
+                if (serverResponse.fail == true) {
+                    log.textContent = serverResponse.warning;
+                } else {
+                    console.log(serverResponse.userName);
+                    state = serverResponse;
+                    log.textContent = state.userName;
+                    renderCustomer(state);
+                }
+
+
+            }
+        }
+
+
+    })
+    transferView.appendChild(transfer);
+
+    const log = document.createElement("p");
+    transferView.appendChild(log);
+
+    const transaction = document.querySelector("#transaction");
+    transaction.replaceChild(transferView, document.querySelector("#transaction").firstElementChild);
 }
 
 
