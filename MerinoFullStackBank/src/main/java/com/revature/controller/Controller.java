@@ -16,6 +16,7 @@ import javax.ws.rs.core.MediaType;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.revature.accounts.Account;
+import com.revature.accounts.OpenAccount;
 import com.revature.responses.Response;
 import com.revature.services.AccountService;
 import com.revature.services.CustomerService;
@@ -85,6 +86,7 @@ public class Controller {
 				e.printStackTrace();
 			}
 		}
+		
 		if (pass.equals(backendUser.getPassword())) {
 			if (backendUser.getUserType() == 1) {
 				Response response = new Response();
@@ -171,7 +173,7 @@ public class Controller {
 						e.printStackTrace();
 					}
 				} else {
-					
+
 					response.fail = true;
 					response.warning = "User doesn't own this account.";
 					ObjectMapper mapper = new ObjectMapper();
@@ -202,9 +204,15 @@ public class Controller {
 
 	@Path("/open/{user}/{pass}")
 	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public String openAccount(@FormParam("accType") String accType, @FormParam("balance") double balance,@DefaultValue("0") @FormParam("joint") int joint, @PathParam("user") String user, @PathParam("pass") String pass) {
+	
+//	public String openAccount(@FormParam("accType") String accType, @FormParam("balance") double balance, @DefaultValue("0")@FormParam("joint") int joint, @PathParam("user") String user, @PathParam("pass") String pass) {
+	public String openAccount(OpenAccount openAcc, @PathParam("user") String user,
+			@PathParam("pass") String pass) {
 		User backendUser = uServ.getUser(user);
+		System.out.println("Jersey accType: " + openAcc.accType + ", balance: " + openAcc.balance + ", joint:" + openAcc.joint
+				+ ", path params user: " + user + ", pass: " + pass);
 		if (backendUser == null) {
 			Response response = new Response();
 			response.fail = true;
@@ -216,15 +224,29 @@ public class Controller {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		} if (joint != 0) {
+		} 
+		if (backendUser.getUserID() == openAcc.joint) {
+			Response response = new Response();
+			response.fail = true;
+			response.warning = "Can't add yourself as a joint account holder.";
+			ObjectMapper mapper = new ObjectMapper();
+			try {
+				return mapper.writeValueAsString(response);
+			} catch (JsonProcessingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return "";
+			}
+		}
+		if (openAcc.joint != 0) {
 			if (pass.equals(backendUser.getPassword())) {
 				if (backendUser.getUserType() == 1) {
-					
-					User jointUser = uServ.getUser(joint);
-					if(jointUser == null) {
+
+					User jointUser = uServ.getUser(openAcc.joint);
+					if (jointUser == null || jointUser.getUserType() != 1) {
 						Response response = new Response();
 						response.fail = true;
-						response.warning = "Could not find your joint user.";
+						response.warning = "Could not find a customer with your joint user's id.";
 						ObjectMapper mapper = new ObjectMapper();
 						try {
 							return mapper.writeValueAsString(response);
@@ -233,11 +255,11 @@ public class Controller {
 							e.printStackTrace();
 						}
 					} else {
-						Account newAcc = new Account(1, accType, balance, "Pending");
+						Account newAcc = new Account(1, openAcc.accType, openAcc.balance, "Pending");
 						newAcc.addCustomer(backendUser.getUserID());
-						newAcc.addCustomer(joint);
-						
-						if(accServ.createAccount(newAcc)) {
+						newAcc.addCustomer(openAcc.joint);
+						System.out.println(newAcc);
+						if (accServ.createAccount(newAcc)) {
 							Response response = new Response();
 							Customer backendCustomer = cServ.getCustomer(backendUser.getUserID());
 							response.fail = false;
@@ -262,6 +284,7 @@ public class Controller {
 								e.printStackTrace();
 							}
 						} else {
+							System.out.println("server failed with joint " + openAcc.joint);
 							Response response = new Response();
 							response.fail = true;
 							response.warning = "Server failed to open account.";
@@ -273,10 +296,9 @@ public class Controller {
 								e.printStackTrace();
 							}
 						}
-						
+
 					}
-					
-					
+
 				} else {
 					Response response = new Response();
 					response.fail = true;
@@ -306,11 +328,12 @@ public class Controller {
 		} else {
 			if (pass.equals(backendUser.getPassword())) {
 				if (backendUser.getUserType() == 1) {
-					
-					Account newAcc = new Account(1, accType, balance, "Pending");
+
+					Account newAcc = new Account(1, openAcc.accType, openAcc.balance, "Pending");
 					newAcc.addCustomer(backendUser.getUserID());
-					
-					if(accServ.createAccount(newAcc)) {
+					System.out.println(newAcc);
+
+					if (accServ.createAccount(newAcc)) {
 						Response response = new Response();
 						Customer backendCustomer = cServ.getCustomer(backendUser.getUserID());
 						response.fail = false;
@@ -335,6 +358,7 @@ public class Controller {
 							e.printStackTrace();
 						}
 					} else {
+						System.out.println("failed without joint " + openAcc.joint);
 						Response response = new Response();
 						response.fail = true;
 						response.warning = "Server failed to open account.";
@@ -346,9 +370,7 @@ public class Controller {
 							e.printStackTrace();
 						}
 					}
-					
-					
-					
+
 				} else {
 					Response response = new Response();
 					response.fail = true;
@@ -376,8 +398,7 @@ public class Controller {
 
 			}
 		}
-		
-		
+
 		return "";
 	}
 }

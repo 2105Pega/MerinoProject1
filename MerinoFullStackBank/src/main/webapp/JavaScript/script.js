@@ -154,6 +154,17 @@ function renderOpen() {
 
     form.setAttribute("action", url);
     form.addEventListener("submit", (event) => {
+        const openAcc = {}
+        
+        
+        const radioOptions = document.getElementsByName("accType");
+        for(i = 0; i < radioOptions.length; i++) {
+            if(radioOptions[i].checked)
+            openAcc.accType = radioOptions[i].value;
+        }
+        openAcc.balance = document.getElementById("balance").value;
+        openAcc.joint = document.getElementById("joint").value;
+
 
         // disable default action
         event.preventDefault();
@@ -163,6 +174,30 @@ function renderOpen() {
         const password = state.password;
 
         const request = new XMLHttpRequest();
+        var url = "http://localhost:8080/MerinoFullStackBank/api/controller/open/" + userName + "/" + password;
+        request.open("POST", url);
+
+
+
+
+        // prepare form data
+        // let data = new FormData(form);
+
+        // for (var pair of data.entries()) {
+        //     console.log(pair[0] + ', ' + pair[1]);
+        // }
+
+        // set headers
+        // request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        // request.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+
+        console.log(JSON.stringify(openAcc))
+        request.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
+        // send request
+        request.send(JSON.stringify(openAcc));
+
+        
+        // request.send(data);
 
         request.onreadystatechange = function () {
 
@@ -182,23 +217,10 @@ function renderOpen() {
 
             }
         }
-        var url = "http://localhost:8080/MerinoFullStackBank/api/controller/open/" + userName + "/" + password;
-        request.open("POST", url);
 
-        // prepare form data
-        let data = new FormData(form);
-
-        // set headers
-        request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-        request.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-
-        // send request
-        request.send(data);
-
-        
 
     });
-    
+
 
     const typeMessage = document.createElement("p");
     typeMessage.innerHTML = "Please select the type of account you want to open."
@@ -240,6 +262,7 @@ function renderOpen() {
 
     const balance = document.createElement("input");
     balance.setAttribute("type", "number");
+    balance.setAttribute("id", "balance");
     balance.setAttribute("name", "balance");
     balance.setAttribute("step", "0.01");
     form.appendChild(balance);
@@ -251,18 +274,20 @@ function renderOpen() {
     const joint = document.createElement("input");
     joint.setAttribute("type", "number");
     joint.setAttribute("name", "joint");
+    joint.setAttribute("id", "joint");
     form.appendChild(joint);
 
     form.appendChild(document.createElement("br"));
     form.appendChild(document.createElement("br"));
     const submit = document.createElement("button");
     submit.setAttribute("type", "submit");
+    submit.setAttribute("role", "button");
     submit.innerHTML = "Submit account application";
     form.appendChild(submit);
 
     const returnCustomer = document.createElement("button");
     returnCustomer.innerHTML = "Return to account view";
-    returnCustomer.addEventListener("click" , (event) => {
+    returnCustomer.addEventListener("click", (event) => {
         renderCustomer(state);
     })
     form.appendChild(returnCustomer);
