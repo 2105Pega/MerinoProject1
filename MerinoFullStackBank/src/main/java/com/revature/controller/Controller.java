@@ -3,8 +3,11 @@ package com.revature.controller;
 import java.util.ArrayList;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -197,4 +200,184 @@ public class Controller {
 		return "";
 	}
 
+	@Path("/open/{user}/{pass}")
+	@POST
+	@Produces(MediaType.APPLICATION_JSON)
+	public String openAccount(@FormParam("accType") String accType, @FormParam("balance") double balance,@DefaultValue("0") @FormParam("joint") int joint, @PathParam("user") String user, @PathParam("pass") String pass) {
+		User backendUser = uServ.getUser(user);
+		if (backendUser == null) {
+			Response response = new Response();
+			response.fail = true;
+			response.warning = "Username doesn't exist.";
+			ObjectMapper mapper = new ObjectMapper();
+			try {
+				return mapper.writeValueAsString(response);
+			} catch (JsonProcessingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} if (joint != 0) {
+			if (pass.equals(backendUser.getPassword())) {
+				if (backendUser.getUserType() == 1) {
+					
+					User jointUser = uServ.getUser(joint);
+					if(jointUser == null) {
+						Response response = new Response();
+						response.fail = true;
+						response.warning = "Could not find your joint user.";
+						ObjectMapper mapper = new ObjectMapper();
+						try {
+							return mapper.writeValueAsString(response);
+						} catch (JsonProcessingException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					} else {
+						Account newAcc = new Account(1, accType, balance, "Pending");
+						newAcc.addCustomer(backendUser.getUserID());
+						newAcc.addCustomer(joint);
+						
+						if(accServ.createAccount(newAcc)) {
+							Response response = new Response();
+							Customer backendCustomer = cServ.getCustomer(backendUser.getUserID());
+							response.fail = false;
+							response.warning = "Successful";
+							response.userID = backendCustomer.getUserID();
+							response.userName = backendCustomer.getUserName();
+							response.password = backendCustomer.getPassword();
+							response.firstName = backendCustomer.getFirstName();
+							response.lastName = backendCustomer.getLastName();
+							response.userType = 1;
+							response.address = backendCustomer.getAddress();
+							response.phone = backendCustomer.getPhone();
+							response.accountList = backendCustomer.getAccountList();
+							response.numberOfAccounts = backendCustomer.getNumberOfAccounts();
+							ObjectMapper mapper = new ObjectMapper();
+
+							try {
+								return mapper.writeValueAsString(response);
+							} catch (JsonProcessingException e) {
+								// TODO Auto-generated catch block
+
+								e.printStackTrace();
+							}
+						} else {
+							Response response = new Response();
+							response.fail = true;
+							response.warning = "Server failed to open account.";
+							ObjectMapper mapper = new ObjectMapper();
+							try {
+								return mapper.writeValueAsString(response);
+							} catch (JsonProcessingException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						}
+						
+					}
+					
+					
+				} else {
+					Response response = new Response();
+					response.fail = true;
+					response.warning = "Cannot open an account if you are not a customer.";
+					ObjectMapper mapper = new ObjectMapper();
+					try {
+						return mapper.writeValueAsString(response);
+					} catch (JsonProcessingException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+
+			} else {
+				Response response = new Response();
+				response.fail = true;
+				response.warning = "Username/Password didn't match.";
+				ObjectMapper mapper = new ObjectMapper();
+				try {
+					return mapper.writeValueAsString(response);
+				} catch (JsonProcessingException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+			}
+		} else {
+			if (pass.equals(backendUser.getPassword())) {
+				if (backendUser.getUserType() == 1) {
+					
+					Account newAcc = new Account(1, accType, balance, "Pending");
+					newAcc.addCustomer(backendUser.getUserID());
+					
+					if(accServ.createAccount(newAcc)) {
+						Response response = new Response();
+						Customer backendCustomer = cServ.getCustomer(backendUser.getUserID());
+						response.fail = false;
+						response.warning = "Successful";
+						response.userID = backendCustomer.getUserID();
+						response.userName = backendCustomer.getUserName();
+						response.password = backendCustomer.getPassword();
+						response.firstName = backendCustomer.getFirstName();
+						response.lastName = backendCustomer.getLastName();
+						response.userType = 1;
+						response.address = backendCustomer.getAddress();
+						response.phone = backendCustomer.getPhone();
+						response.accountList = backendCustomer.getAccountList();
+						response.numberOfAccounts = backendCustomer.getNumberOfAccounts();
+						ObjectMapper mapper = new ObjectMapper();
+
+						try {
+							return mapper.writeValueAsString(response);
+						} catch (JsonProcessingException e) {
+							// TODO Auto-generated catch block
+
+							e.printStackTrace();
+						}
+					} else {
+						Response response = new Response();
+						response.fail = true;
+						response.warning = "Server failed to open account.";
+						ObjectMapper mapper = new ObjectMapper();
+						try {
+							return mapper.writeValueAsString(response);
+						} catch (JsonProcessingException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+					
+					
+					
+				} else {
+					Response response = new Response();
+					response.fail = true;
+					response.warning = "Cannot open an account if you are not a customer.";
+					ObjectMapper mapper = new ObjectMapper();
+					try {
+						return mapper.writeValueAsString(response);
+					} catch (JsonProcessingException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+
+			} else {
+				Response response = new Response();
+				response.fail = true;
+				response.warning = "Username/Password didn't match.";
+				ObjectMapper mapper = new ObjectMapper();
+				try {
+					return mapper.writeValueAsString(response);
+				} catch (JsonProcessingException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+			}
+		}
+		
+		
+		return "";
+	}
 }
