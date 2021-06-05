@@ -21,6 +21,7 @@ import com.revature.responses.Response;
 import com.revature.services.AccountService;
 import com.revature.services.CustomerService;
 import com.revature.services.UserService;
+import com.revature.transactions.WithdrawAttempt;
 import com.revature.users.CreateCustomer;
 import com.revature.users.Customer;
 import com.revature.users.User;
@@ -409,6 +410,69 @@ public class Controller {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public String createCustomer(CreateCustomer createCus) {
+		User backendUser = uServ.getUser(createCus.user);
+		System.out.println("Jersey createCus: " + createCus.user + ", password: " + createCus.password + ", fName:" + createCus.fName  + ", lName:" + createCus.lName);
+		if (backendUser != null) {
+			Response response = new Response();
+			response.fail = true;
+			response.warning = "Username already exists.";
+			ObjectMapper mapper = new ObjectMapper();
+			try {
+				return mapper.writeValueAsString(response);
+			} catch (JsonProcessingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} else {
+			if (cServ.createCustomer(createCus.user, createCus.password, createCus.fName, createCus.lName)) {
+				backendUser = uServ.getUser(createCus.user);
+				Response response = new Response();
+				Customer backendCustomer = cServ.getCustomer(backendUser.getUserID());
+				response.fail = false;
+				response.warning = "Successful";
+				response.userID = backendCustomer.getUserID();
+				response.userName = backendCustomer.getUserName();
+				response.password = backendCustomer.getPassword();
+				response.firstName = backendCustomer.getFirstName();
+				response.lastName = backendCustomer.getLastName();
+				response.userType = 1;
+				response.address = backendCustomer.getAddress();
+				response.phone = backendCustomer.getPhone();
+				response.accountList = backendCustomer.getAccountList();
+				response.numberOfAccounts = backendCustomer.getNumberOfAccounts();
+				ObjectMapper mapper = new ObjectMapper();
+
+				try {
+					return mapper.writeValueAsString(response);
+				} catch (JsonProcessingException e) {
+					// TODO Auto-generated catch block
+
+					e.printStackTrace();
+				}
+				
+			} else {
+				Response response = new Response();
+				response.fail = true;
+				response.warning = "Server was unable to create the user.";
+				ObjectMapper mapper = new ObjectMapper();
+				try {
+					return mapper.writeValueAsString(response);
+				} catch (JsonProcessingException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+		
+
+		return "";
+	}
+	
+	@Path("/withdraw")
+	@PUT
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public String withdraw(WithdrawAttempt withAttempt) {
 		User backendUser = uServ.getUser(createCus.user);
 		System.out.println("Jersey createCus: " + createCus.user + ", password: " + createCus.password + ", fName:" + createCus.fName  + ", lName:" + createCus.lName);
 		if (backendUser != null) {
