@@ -135,9 +135,14 @@ function renderCustomer(state) {
     openButton.addEventListener("click", renderOpen);
 
     const withdrawButton = document.createElement("button");
-    withdrawButton.innerHTML = "Withdraw from an account";
+    withdrawButton.innerHTML = "Withdraw";
     customerView.appendChild(withdrawButton);
     withdrawButton.addEventListener("click", renderWithdraw);
+
+    const depositButton = document.createElement("button");
+    depositButton.innerHTML = "Deposit";
+    customerView.appendChild(depositButton);
+    depositButton.addEventListener("click", renderDeposit);
 
     const logger = document.createElement("p");
     customerView.appendChild(logger);
@@ -494,95 +499,13 @@ function renderWithdraw() {
     const withdrawView = document.createElement("div");
     withdrawView.setAttribute("id", "withdrawView");
 
-    
-
-
-    // const form = document.createElement("form");
-    // form.setAttribute("id", "withdrawForm");
-    // form.setAttribute("method", "PUT");
-    // const user = state.userName;
-    // const pass = state.password;
-    // const url = "http://localhost:8080/MerinoFullStackBank/api/controller/open/" + user + "/" + pass;
-
-    // form.setAttribute("action", url);
-    // form.addEventListener("submit", (event) => {
-    //     const openAcc = {}
-        
-        
-    //     const radioOptions = document.getElementsByName("accType");
-    //     for(i = 0; i < radioOptions.length; i++) {
-    //         if(radioOptions[i].checked)
-    //         openAcc.accType = radioOptions[i].value;
-    //     }
-    //     openAcc.balance = document.getElementById("balance").value;
-    //     openAcc.joint = document.getElementById("joint").value;
-
-
-    //     // disable default action
-    //     event.preventDefault();
-
-    //     // configure a request
-    //     const userName = state.userName;
-    //     const password = state.password;
-
-    //     const request = new XMLHttpRequest();
-    //     var url = "http://localhost:8080/MerinoFullStackBank/api/controller/open/" + userName + "/" + password;
-    //     request.open("POST", url);
-
-
-
-
-    //     // prepare form data
-    //     // let data = new FormData(form);
-
-    //     // for (var pair of data.entries()) {
-    //     //     console.log(pair[0] + ', ' + pair[1]);
-    //     // }
-
-    //     // set headers
-    //     // request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-    //     // request.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-
-    //     console.log(JSON.stringify(openAcc))
-    //     request.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
-    //     // send request
-    //     request.send(JSON.stringify(openAcc));
-
-        
-    //     // request.send(data);
-
-    //     request.onreadystatechange = function () {
-
-    //         if (this.readyState == 4) {
-    //             const serverResponse = JSON.parse(this.response);
-    //             console.log(JSON.parse(this.response))
-    //             console.log(serverResponse);
-    //             if (serverResponse.fail == true) {
-    //                 log.textContent = serverResponse.warning;
-    //             } else {
-    //                 console.log(serverResponse.userName);
-    //                 state = serverResponse;
-    //                 log.textContent = state.userName;
-    //                 renderCustomer(state);
-    //             }
-
-
-    //         }
-    //     }
-
-
-    // });
-
     const amountText = document.createElement("p");
     amountText.innerHTML = "Please type the amount you wish to withdraw. <br>";
     withdrawView.appendChild(amountText);
-   
-
-
 
     const dollarSign = document.createElement("span");
     dollarSign.innerHTML = "$";
-    form.appendChild(dollarSign);
+    withdrawView.appendChild(dollarSign);
 
     const amount = document.createElement("input");
     amount.setAttribute("type", "number");
@@ -665,6 +588,103 @@ function renderWithdraw() {
     const transaction = document.querySelector("#transaction");
     transaction.replaceChild(withdrawView, document.querySelector("#transaction").firstElementChild);
 }
+
+function renderDeposit() {
+    const depositView = document.createElement("div");
+    depositView.setAttribute("id", "depositView");
+
+    const amountText = document.createElement("p");
+    amountText.innerHTML = "Please type the amount you wish to deposit. <br>";
+    depositView.appendChild(amountText);
+
+    const dollarSign = document.createElement("span");
+    dollarSign.innerHTML = "$";
+    depositView.appendChild(dollarSign);
+
+    const amount = document.createElement("input");
+    amount.setAttribute("type", "number");
+    amount.setAttribute("id", "amount");
+    amount.setAttribute("name", "amount");
+    amount.setAttribute("step", "0.01");
+    amount.required = true;
+    depositView.appendChild(amount);
+
+    const numberMessage = document.createElement("p");
+    numberMessage.innerHTML = "Please type the account number you wish to deposit into."
+    depositView.appendChild(numberMessage);
+
+    const accNumber = document.createElement("input");
+    accNumber.setAttribute("type", "number");
+    accNumber.setAttribute("name", "accNumber");
+    accNumber.setAttribute("id", "accNumber");
+    accNumber.required = true;
+    depositView.appendChild(accNumber);
+
+    depositView.appendChild(document.createElement("br"));
+    depositView.appendChild(document.createElement("br"));
+    const deposit = document.createElement("button");
+    deposit.setAttribute("type", "button");
+    deposit.innerHTML = "Deposit funds";
+
+    deposit.addEventListener("click", (event)=>{
+        event.preventDefault();
+        
+        if(document.getElementById("amount").value == null || document.getElementById("amount").value == 0 || document.getElementById("accNumber").value == null ||document.getElementById("accNumber").value == 0){
+            log.textContent = "Please enter an amount and account number";
+            return;
+        }
+        
+        const depAttempt = {}
+        depAttempt.userName = state.userName;
+        depAttempt.password = state.password;
+        depAttempt.amount = document.getElementById("amount").value;
+        depAttempt.accNumber = document.getElementById("accNumber").value;
+
+
+        const request = new XMLHttpRequest();
+        var url = "http://localhost:8080/MerinoFullStackBank/api/controller/deposit";
+        request.open("PUT", url);
+
+
+
+        console.log(JSON.stringify(depAttempt))
+        request.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
+        
+        request.send(JSON.stringify(depAttempt));
+
+
+        request.onreadystatechange = function () {
+
+            if (this.readyState == 4) {
+                const serverResponse = JSON.parse(this.response);
+                console.log(JSON.parse(this.response))
+                console.log(serverResponse);
+                if (serverResponse.fail == true) {
+                    log.textContent = serverResponse.warning;
+                } else {
+                    console.log(serverResponse.userName);
+                    state = serverResponse;
+                    log.textContent = state.userName;
+                    renderCustomer(state);
+                }
+
+
+            }
+        }
+
+
+    })
+    depositView.appendChild(deposit);
+
+    const log = document.createElement("p");
+    depositView.appendChild(log);
+
+    const transaction = document.querySelector("#transaction");
+    transaction.replaceChild(depositView, document.querySelector("#transaction").firstElementChild);
+}
+
+
+
 // function openSubmit(event) {
 //     event.preventDefault();
 //     console.log("called loginSubmit");
