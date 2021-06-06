@@ -176,6 +176,7 @@ function renderEmployee(state) {
     const welcome = document.createElement("h3");
     welcome.innerHTML = "Welcome " + state.firstName + " " + state.lastName + ".";
     employeeView.appendChild(welcome);
+    employeeView.appendChild(document.createElement("hr"));
 
     for (var customer of state.employeeCustomerList) {
 
@@ -208,49 +209,54 @@ function renderEmployee(state) {
             console.log(i);
             console.log(customer.accountList[i]);
             console.log(customer);
-            console.log(accountTable.getAttribute("id"));
+            const id = accountTable.getAttribute("id");
+            (function (id) {
 
-            const accRequest = new XMLHttpRequest();
 
-            accRequest.onreadystatechange = function () {
+                const accRequest = new XMLHttpRequest();
 
-                if (this.readyState == 4) {
-                    const serverResponse = JSON.parse(this.response);
-                    console.log(JSON.parse(this.response))
-                    console.log(serverResponse);
-                    if (serverResponse.fail == true) {
-                        logger.textContent = serverResponse.warning;
-                    } else {
-                        console.log(serverResponse.accountNumber);
-                        accountResponse = serverResponse;
-                        const accTab = document.querySelector("#accountTable" + customer.userID);
+                accRequest.onreadystatechange = function () {
 
-                        const row = accTab.insertRow();
+                    if (this.readyState == 4) {
+                        const serverResponse = JSON.parse(this.response);
+                        console.log(JSON.parse(this.response))
+                        console.log(serverResponse);
+                        if (serverResponse.fail == true) {
+                            logger.textContent = serverResponse.warning;
+                        } else {
+                            console.log(serverResponse.accountNumber);
+                            accountResponse = serverResponse;
+                            const accTab = document.querySelector("#" + id);
 
-                        const accNum = row.insertCell(0);
-                        accNum.innerHTML = accountResponse.accountNumber;
+                            const row = accTab.insertRow();
 
-                        const accType = row.insertCell(1);
-                        accType.innerHTML = accountResponse.accountType;
+                            const accNum = row.insertCell(0);
+                            accNum.innerHTML = accountResponse.accountNumber;
 
-                        const bal = row.insertCell(2);
-                        bal.innerHTML = "$" + accountResponse.balance;
+                            const accType = row.insertCell(1);
+                            accType.innerHTML = accountResponse.accountType;
 
-                        const stat = row.insertCell(3);
-                        stat.innerHTML = accountResponse.approved;
+                            const bal = row.insertCell(2);
+                            bal.innerHTML = "$" + accountResponse.balance;
+
+                            const stat = row.insertCell(3);
+                            stat.innerHTML = accountResponse.approved;
+
+                        }
+
 
                     }
-
-
                 }
-            }
 
-            const user = customer.userName;
-            const password = customer.password;
-            const acc = customer.accountList[i];
-            const url = "http://localhost:8080/MerinoFullStackBank/api/controller/account/" + user + "/" + password + "/" + acc;
-            accRequest.open("GET", url);
-            accRequest.send();
+                const user = customer.userName;
+                const password = customer.password;
+                const acc = customer.accountList[i];
+                const url = "http://localhost:8080/MerinoFullStackBank/api/controller/account/" + user + "/" + password + "/" + acc;
+                accRequest.open("GET", url);
+                accRequest.send();
+
+            })(id);
+
 
         }
         employeeView.appendChild(accountTable);
