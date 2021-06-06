@@ -20,7 +20,7 @@ Go to Window > Show View > Other then select Servers > server. Click add a new s
 
 Expand src/main/java, then com.revature.controller, and open Controller.java then run Controller on Server and select the Tomcat 9 server. Now open http://localhost:8080/MerinoFullStackBank/ in your prefered browser to use the application.
 
-You can interact with the application by typing your reponse to the given prompts and pressing enter.
+You can interact with the application via the website's interface.
 
 If you would like to use an existing user you may use these two pre-existing accounts:
 
