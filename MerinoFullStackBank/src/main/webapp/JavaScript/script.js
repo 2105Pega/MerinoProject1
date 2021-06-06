@@ -154,6 +154,14 @@ function renderCustomer(state) {
     customerView.appendChild(transferButton);
     transferButton.addEventListener("click", renderTransfer);
 
+    const logout = document.createElement("button");
+    logout.innerHTML = "Logout";
+    logout.setAttribute("type", "button");
+    logout.addEventListener("click", (event) => {
+        window.location.href = "http://localhost:8080/MerinoFullStackBank/";
+    })
+    customerView.appendChild(logout);
+
     const logger = document.createElement("p");
     customerView.appendChild(logger);
 
@@ -262,11 +270,19 @@ function renderEmployee(state) {
         employeeView.appendChild(accountTable);
         employeeView.appendChild(document.createElement("hr"));
     }
-    
+
     const decideButton = document.createElement("button");
     decideButton.innerHTML = "Approve/Deny pending accounts.";
     employeeView.appendChild(decideButton);
     decideButton.addEventListener("click", renderDecide);
+
+    const logout = document.createElement("button");
+    logout.innerHTML = "Logout";
+    logout.setAttribute("type", "button");
+    logout.addEventListener("click", (event) => {
+        window.location.href = "http://localhost:8080/MerinoFullStackBank/";
+    })
+    employeeView.appendChild(logout);
 
     const transaction = document.createElement("div");
     transaction.setAttribute("id", "transaction");
@@ -601,6 +617,7 @@ function renderCreate() {
 
     const returnCustomer = document.createElement("button");
     returnCustomer.innerHTML = "Return to login view";
+    returnCustomer.setAttribute("type", "button");
     returnCustomer.addEventListener("click", (event) => {
         window.location.href = "http://localhost:8080/MerinoFullStackBank/";
     })
@@ -963,8 +980,9 @@ function renderDecide() {
                 if (choice.checked){
                     return true;
                }
-               return false;
+               
             }
+            return false;
         }
 
 
