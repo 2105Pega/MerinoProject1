@@ -154,6 +154,16 @@ function renderCustomer(state) {
     customerView.appendChild(transferButton);
     transferButton.addEventListener("click", renderTransfer);
 
+    const updateInfoButton = document.createElement("button");
+    updateInfoButton.innerHTML = "Update personal information";
+    customerView.appendChild(updateInfoButton);
+    updateInfoButton.addEventListener("click", renderInfoUpdate);
+
+    const updatePasswordButton = document.createElement("button");
+    updatePasswordButton.innerHTML = "Update password";
+    customerView.appendChild(updatePasswordButton);
+    updatePasswordButton.addEventListener("click", renderPasswordUpdate);
+
     const logout = document.createElement("button");
     logout.innerHTML = "Logout";
     logout.setAttribute("type", "button");
@@ -1046,46 +1056,185 @@ function renderDecide() {
     transaction.replaceChild(decideView, document.querySelector("#transaction").firstElementChild);
 }
 
+function renderInfoUpdate() {
+    const infoUpdateView = document.createElement("div");
+    infoUpdateView.setAttribute("id", "infoUpdateView");
 
-// function openSubmit(event) {
-//     event.preventDefault();
-//     console.log("called loginSubmit");
-//     // const user = {};
-//     // user.userID = 0;
-//     // user.userName= document.getElementById("username").value;
-//     // user.password= document.getElementById("password").value;
-//     // user.firstName="default";
-//     // user.lastName="default";
-//     // user.userType = 1;
+    const addresstText = document.createElement("p");
+    addresstText.innerHTML = "Please type your new address. <br>";
+    infoUpdateView.appendChild(addresstText);
 
-//     const userName = document.getElementById("username").value;
-//     const password = document.getElementById("password").value;
+    const address = document.createElement("input");
+    address.setAttribute("type", "text");
+    address.setAttribute("id", "address");
+    address.setAttribute("name", "address");
+    address.required = true;
+    address.defaultValue = state.address;
+    infoUpdateView.appendChild(address);
 
-//     const request = new XMLHttpRequest();
+    const phoneText = document.createElement("p");
+    phoneText.innerHTML = "Please type your new phone number. <br>";
+    infoUpdateView.appendChild(phoneText);
 
-//     request.onreadystatechange = function () {
+    const phone = document.createElement("input");
+    phone.setAttribute("type", "text");
+    phone.setAttribute("id", "phone");
+    phone.setAttribute("name", "phone");
+    phone.required = true;
+    phone.defaultValue = state.phone;
+    infoUpdateView.appendChild(phone);
 
-//         if (this.readyState == 4) {
-//             const serverResponse = JSON.parse(this.response);
-//             console.log(JSON.parse(this.response))
-//             console.log(serverResponse);
-//             if (serverResponse.fail == true) {
-//                 log.textContent = serverResponse.warning;
-//             } else {
-//                 console.log(serverResponse.userName);
-//                 state = serverResponse;
-//                 log.textContent = state.userName;
-//                 renderCustomer(state);
-//             }
+    infoUpdateView.appendChild(document.createElement("br"));
+    infoUpdateView.appendChild(document.createElement("br"));
+    const updateInfo = document.createElement("button");
+    updateInfo.setAttribute("type", "button");
+    updateInfo.innerHTML = "Update personal information.";
+
+    updateInfo.addEventListener("click", (event) => {
+        event.preventDefault();
+
+        if (document.getElementById("address").value == null || document.getElementById("address").value == "" || document.getElementById("phone").value == null || document.getElementById("phone").value == "") {
+            log.textContent = "Please enter an address and phone number.";
+            return;
+        }
+
+        const infoUpdateAttempt = {}
+        infoUpdateAttempt.userName = state.userName;
+        infoUpdateAttempt.password = state.password;
+        infoUpdateAttempt.newAddress = document.getElementById("address").value;
+        infoUpdateAttempt.newPhone = document.getElementById("phone").value;
 
 
-//         }
-//     }
-//     var url = "http://localhost:8080/MerinoFullStackBank/api/controller/login/" + userName + "/" + password;
-//     request.open("GET", url);
-//     // console.log(JSON.stringify(user))
-//     // request.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
-//     // request.send(JSON.stringify(user));
-//     request.send();
-//     log.textContent = `Submitted! Time stamp: ${event.timeStamp}`;
-// }
+        const request = new XMLHttpRequest();
+        var url = "http://localhost:8080/MerinoFullStackBank/api/controller/infoUpdate";
+        request.open("PUT", url);
+
+
+
+        console.log(JSON.stringify(infoUpdateAttempt))
+        request.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
+
+        request.send(JSON.stringify(infoUpdateAttempt));
+
+
+        request.onreadystatechange = function () {
+
+            if (this.readyState == 4) {
+                const serverResponse = JSON.parse(this.response);
+                console.log(JSON.parse(this.response))
+                console.log(serverResponse);
+                if (serverResponse.fail == true) {
+                    log.textContent = serverResponse.warning;
+                } else {
+                    console.log(serverResponse.userName);
+                    state = serverResponse;
+                    log.textContent = state.userName;
+                    renderCustomer(state);
+                }
+
+
+            }
+        }
+
+
+    })
+    infoUpdateView.appendChild(updateInfo);
+
+    const log = document.createElement("p");
+    infoUpdateView.appendChild(log);
+
+    const transaction = document.querySelector("#transaction");
+    transaction.replaceChild(infoUpdateView, document.querySelector("#transaction").firstElementChild);
+}
+
+function renderPasswordUpdate() {
+    const passwordUpdateView = document.createElement("div");
+    passwordUpdateView.setAttribute("id", "passwordUpdateView");
+
+    const passwordText = document.createElement("p");
+    passwordText.innerHTML = "Please type your new password. <br>";
+    passwordUpdateView.appendChild(passwordText);
+
+    const newPassword = document.createElement("input");
+    newPassword.setAttribute("type", "password");
+    newPassword.setAttribute("id", "newPassword");
+    newPassword.setAttribute("name", "newPassword");
+    newPassword.required = true;
+    passwordUpdateView.appendChild(newPassword);
+
+    const confPasswordText = document.createElement("p");
+    confPasswordText.innerHTML = "Please confirm your new password. <br>";
+    passwordUpdateView.appendChild(confPasswordText);
+
+    const confNewPassword = document.createElement("input");
+    confNewPassword.setAttribute("type", "password");
+    confNewPassword.setAttribute("id", "confNewPassword");
+    confNewPassword.setAttribute("name", "confNewPassword");
+    confNewPassword.required = true;
+    passwordUpdateView.appendChild(confNewPassword);
+
+    passwordUpdateView.appendChild(document.createElement("br"));
+    passwordUpdateView.appendChild(document.createElement("br"));
+    const updatePassword = document.createElement("button");
+    updatePassword.setAttribute("type", "button");
+    updatePassword.innerHTML = "Update password.";
+
+    updatePassword.addEventListener("click", (event) => {
+        event.preventDefault();
+
+        if (document.getElementById("newPassword").value == null || document.getElementById("newPassword").value == "" || document.getElementById("confNewPassword").value == null || document.getElementById("confNewPassword").value == "") {
+            log.textContent = "Please enter the new password and confirm it.";
+            return;
+        }
+        if(document.getElementById("newPassword").value != document.getElementById("confNewPassword").value){
+            log.textContent = "The passwords didn't match.";
+            return;
+        }
+
+        const passwordUpdateAttempt = {}
+        passwordUpdateAttempt.userName = state.userName;
+        passwordUpdateAttempt.password = state.password;
+        passwordUpdateAttempt.newPassword = document.getElementById("newPassword").value;
+
+
+        const request = new XMLHttpRequest();
+        var url = "http://localhost:8080/MerinoFullStackBank/api/controller/passwordUpdate";
+        request.open("PUT", url);
+
+
+
+        console.log(JSON.stringify(passwordUpdateAttempt))
+        request.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
+
+        request.send(JSON.stringify(passwordUpdateAttempt));
+
+
+        request.onreadystatechange = function () {
+
+            if (this.readyState == 4) {
+                const serverResponse = JSON.parse(this.response);
+                console.log(JSON.parse(this.response))
+                console.log(serverResponse);
+                if (serverResponse.fail == true) {
+                    log.textContent = serverResponse.warning;
+                } else {
+                    console.log(serverResponse.userName);
+                    state = serverResponse;
+                    log.textContent = state.userName;
+                    renderCustomer(state);
+                }
+
+
+            }
+        }
+
+
+    });
+    passwordUpdateView.appendChild(updatePassword);
+
+    const log = document.createElement("p");
+    passwordUpdateView.appendChild(log);
+
+    const transaction = document.querySelector("#transaction");
+    transaction.replaceChild(passwordUpdateView, document.querySelector("#transaction").firstElementChild);
+}

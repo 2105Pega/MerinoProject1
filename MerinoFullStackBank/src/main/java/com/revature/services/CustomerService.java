@@ -97,6 +97,9 @@ public class CustomerService {
 			}
 		}
 	}
+	public boolean updatePasswordService(Customer customer, String newPassword) {
+		return cDao.updatePassword(customer, newPassword);
+	}
 
 	public void update(Customer customer, Scanner sc) {
 		System.out.println("Please provide your new phone number.");
@@ -119,6 +122,10 @@ public class CustomerService {
 		}
 
 	}
+	public boolean updateInfo(Customer customer,String newPhone,String newAddress) {
+		return cDao.updateInfo(customer, newPhone, newAddress);
+	}
+	
 
 	public void accounts(Customer cus, Scanner sc) {
 		

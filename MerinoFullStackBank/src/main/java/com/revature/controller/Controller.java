@@ -1,7 +1,5 @@
 package com.revature.controller;
 
-
-
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -23,6 +21,8 @@ import com.revature.services.EmployeeService;
 import com.revature.services.UserService;
 import com.revature.services.tServices;
 import com.revature.transactions.DecisionAttempt;
+import com.revature.transactions.InfoUpdateAttempt;
+import com.revature.transactions.PasswordUpdateAttempt;
 import com.revature.transactions.TransferAttempt;
 import com.revature.transactions.WithdrawDepositAttempt;
 import com.revature.users.CreateCustomer;
@@ -34,14 +34,14 @@ import org.apache.logging.log4j.Logger;
 
 @Path("/controller")
 public class Controller {
-	
+
+	private static final Logger logger = LogManager.getLogger(Controller.class);
+
 	private UserService uServ = new UserService();
 	private CustomerService cServ = new CustomerService();
 	private AccountService accServ = new AccountService();
 	private tServices tServ = new tServices();
 	private EmployeeService eServ = new EmployeeService();
-
-
 
 	@Path("/login/{user}/{pass}")
 	@GET
@@ -87,7 +87,7 @@ public class Controller {
 
 					e.printStackTrace();
 				}
-			} else if(backendUser.getUserType() == 2) {
+			} else if (backendUser.getUserType() == 2) {
 				Response response = new Response();
 				Employee backendEmployee = eServ.getEmployee(backendUser.getUserID());
 				response.fail = false;
@@ -507,7 +507,7 @@ public class Controller {
 				if (backendCustomer.getAccountList().contains(withAttempt.accNumber)) {
 					try {
 						String result = tServ.withdraw(withAttempt.amount, withAttempt.accNumber);
-						
+						logger.trace("Withdrawl attempt was made. Result: " + result);
 
 						Response response = new Response();
 						response.fail = false;
@@ -562,6 +562,7 @@ public class Controller {
 
 		return "";
 	}
+
 	@Path("/deposit")
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -598,7 +599,6 @@ public class Controller {
 				if (backendCustomer.getAccountList().contains(depAttempt.accNumber)) {
 					try {
 						String result = tServ.deposit(depAttempt.amount, depAttempt.accNumber);
-						
 
 						Response response = new Response();
 						response.fail = false;
@@ -653,7 +653,7 @@ public class Controller {
 
 		return "";
 	}
-	
+
 	@Path("/transfer")
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -661,7 +661,8 @@ public class Controller {
 	public String transfer(TransferAttempt transAttempt) {
 		User backendUser = uServ.getUser(transAttempt.userName);
 		System.out.println("Jersey transAttempt: " + transAttempt.userName + ", password: " + transAttempt.password
-				+ ", amount:" + transAttempt.amount + ", senderNumber:" + transAttempt.senderNumber  + ", receiverNumber:" + transAttempt.receiverNumber);
+				+ ", amount:" + transAttempt.amount + ", senderNumber:" + transAttempt.senderNumber
+				+ ", receiverNumber:" + transAttempt.receiverNumber);
 		if (backendUser == null) {
 			Response response = new Response();
 			response.fail = true;
@@ -689,8 +690,8 @@ public class Controller {
 				Customer backendCustomer = cServ.getCustomer(backendUser.getUserID());
 				if (backendCustomer.getAccountList().contains(transAttempt.senderNumber)) {
 					try {
-						String result = tServ.transfer(transAttempt.amount, transAttempt.senderNumber, transAttempt.receiverNumber);
-						
+						String result = tServ.transfer(transAttempt.amount, transAttempt.senderNumber,
+								transAttempt.receiverNumber);
 
 						Response response = new Response();
 						response.fail = false;
@@ -745,7 +746,7 @@ public class Controller {
 
 		return "";
 	}
-	
+
 	@Path("/decide")
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -778,15 +779,14 @@ public class Controller {
 					e.printStackTrace();
 				}
 			} else {
-				
+
 				if (backendUser.getUserType() == 2) {
 					try {
 						Employee backendEmployee = eServ.getEmployee(backendUser.getUserID());
 						String result = eServ.decideService(backendEmployee, decAttempt.accNumber, decAttempt.decision);
-						
 
 						Response response = new Response();
-						
+
 						response.fail = false;
 						response.warning = "Successful";
 						response.userID = backendEmployee.getUserID();
@@ -828,6 +828,162 @@ public class Controller {
 					} catch (JsonProcessingException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
+					}
+				}
+
+			}
+		}
+
+		return "";
+	}
+
+	@Path("/infoUpdate")
+	@PUT
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public String infoUpdate(InfoUpdateAttempt infoUpdateAttempt) {
+		User backendUser = uServ.getUser(infoUpdateAttempt.userName);
+		System.out.println(
+				"Jersey infoUpdateAttempt: " + infoUpdateAttempt.userName + ", password: " + infoUpdateAttempt.password
+						+ ", newAddress:" + infoUpdateAttempt.newAddress + ", newPhone:" + infoUpdateAttempt.newPhone);
+		if (backendUser == null) {
+			Response response = new Response();
+			response.fail = true;
+			response.warning = "User for information update attempt could not be found.";
+			ObjectMapper mapper = new ObjectMapper();
+			try {
+				return mapper.writeValueAsString(response);
+			} catch (JsonProcessingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} else {
+			if (!backendUser.getPassword().equals(infoUpdateAttempt.password)) {
+				Response response = new Response();
+				response.fail = true;
+				response.warning = "User and password for update did not match.";
+				ObjectMapper mapper = new ObjectMapper();
+				try {
+					return mapper.writeValueAsString(response);
+				} catch (JsonProcessingException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			} else {
+				Customer backendCustomer = cServ.getCustomer(backendUser.getUserID());
+				if (cServ.updateInfo(backendCustomer, infoUpdateAttempt.newPhone, infoUpdateAttempt.newAddress)) {
+					backendCustomer = cServ.getCustomer(backendUser.getUserID());
+					Response response = new Response();
+					response.fail = false;
+					response.warning = "Successful";
+					response.userID = backendCustomer.getUserID();
+					response.userName = backendCustomer.getUserName();
+					response.password = backendCustomer.getPassword();
+					response.firstName = backendCustomer.getFirstName();
+					response.lastName = backendCustomer.getLastName();
+					response.userType = 1;
+					response.address = backendCustomer.getAddress();
+					response.phone = backendCustomer.getPhone();
+					response.accountList = backendCustomer.getAccountList();
+					response.numberOfAccounts = backendCustomer.getNumberOfAccounts();
+					ObjectMapper mapper = new ObjectMapper();
+
+					try {
+						return mapper.writeValueAsString(response);
+					} catch (JsonProcessingException e) {
+						// TODO Auto-generated catch block
+
+						e.printStackTrace();
+					}
+				} else {
+					// TODO Auto-generated catch block
+					Response response = new Response();
+					response.fail = true;
+					response.warning = "Server failed to update personal information";
+					ObjectMapper mapper = new ObjectMapper();
+					try {
+						return mapper.writeValueAsString(response);
+					} catch (JsonProcessingException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				}
+
+			}
+		}
+
+		return "";
+	}
+	
+	@Path("/passwordUpdate")
+	@PUT
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public String passwordUpdate(PasswordUpdateAttempt passwordUpdateAttempt) {
+		User backendUser = uServ.getUser(passwordUpdateAttempt.userName);
+		System.out.println(
+				"Jersey passwordUpdateAttempt: " + passwordUpdateAttempt.userName + ", password: " + passwordUpdateAttempt.password
+						+ ", newPassword:" + passwordUpdateAttempt.newPassword);
+		if (backendUser == null) {
+			Response response = new Response();
+			response.fail = true;
+			response.warning = "User for password update attempt could not be found.";
+			ObjectMapper mapper = new ObjectMapper();
+			try {
+				return mapper.writeValueAsString(response);
+			} catch (JsonProcessingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} else {
+			if (!backendUser.getPassword().equals(passwordUpdateAttempt.password)) {
+				Response response = new Response();
+				response.fail = true;
+				response.warning = "User and original for update did not match.";
+				ObjectMapper mapper = new ObjectMapper();
+				try {
+					return mapper.writeValueAsString(response);
+				} catch (JsonProcessingException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			} else {
+				Customer backendCustomer = cServ.getCustomer(backendUser.getUserID());
+				if (cServ.updatePasswordService(backendCustomer, passwordUpdateAttempt.newPassword)) {
+					backendCustomer = cServ.getCustomer(backendUser.getUserID());
+					Response response = new Response();
+					response.fail = false;
+					response.warning = "Successful";
+					response.userID = backendCustomer.getUserID();
+					response.userName = backendCustomer.getUserName();
+					response.password = backendCustomer.getPassword();
+					response.firstName = backendCustomer.getFirstName();
+					response.lastName = backendCustomer.getLastName();
+					response.userType = 1;
+					response.address = backendCustomer.getAddress();
+					response.phone = backendCustomer.getPhone();
+					response.accountList = backendCustomer.getAccountList();
+					response.numberOfAccounts = backendCustomer.getNumberOfAccounts();
+					ObjectMapper mapper = new ObjectMapper();
+
+					try {
+						return mapper.writeValueAsString(response);
+					} catch (JsonProcessingException e) {
+						// TODO Auto-generated catch block
+
+						e.printStackTrace();
+					}
+				} else {
+					// TODO Auto-generated catch block
+					Response response = new Response();
+					response.fail = true;
+					response.warning = "Server failed to update password";
+					ObjectMapper mapper = new ObjectMapper();
+					try {
+						return mapper.writeValueAsString(response);
+					} catch (JsonProcessingException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
 					}
 				}
 

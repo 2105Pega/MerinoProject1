@@ -33,7 +33,7 @@ public class tServices {
 					String result = "Account [" + account.getAccountNumber() + "] had an account balance of " + oldBalance
 							+ " and a withdrawal of " + amount + " was made. The new balance is: "
 							+ account.getBalance() + ".";
-					logger.trace("Withdrawl attempt was made. Result: " + result);
+//					logger.trace("Withdrawl attempt was made. Result: " + result);
 					return result;
 				} else {
 					return "The withdrawl was unsuccessful";
