@@ -40,7 +40,7 @@ function loginSubmit(event) {
 
         }
     }
-    var url = "http://localhost:8080/MerinoFullStackBank/api/controller/login/" + userName + "/" + password;
+    var url = "api/controller/login/" + userName + "/" + password;
     request.open("GET", url);
     // console.log(JSON.stringify(user))
     // request.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
@@ -127,7 +127,7 @@ function renderCustomer(state) {
         const user = state.userName;
         const password = state.password;
         const acc = state.accountList[i];
-        const url = "http://localhost:8080/MerinoFullStackBank/api/controller/account/" + user + "/" + password + "/" + acc;
+        const url = "api/controller/account/" + user + "/" + password + "/" + acc;
         accRequest.open("GET", url);
         accRequest.send();
 
@@ -168,7 +168,7 @@ function renderCustomer(state) {
     logout.innerHTML = "Logout";
     logout.setAttribute("type", "button");
     logout.addEventListener("click", (event) => {
-        window.location.href = "http://localhost:8080/MerinoFullStackBank/";
+        location.reload();
     })
     customerView.appendChild(logout);
 
@@ -269,7 +269,7 @@ function renderEmployee(state) {
                 const user = customer.userName;
                 const password = customer.password;
                 const acc = customer.accountList[i];
-                const url = "http://localhost:8080/MerinoFullStackBank/api/controller/account/" + user + "/" + password + "/" + acc;
+                const url = "api/controller/account/" + user + "/" + password + "/" + acc;
                 accRequest.open("GET", url);
                 accRequest.send();
 
@@ -290,7 +290,7 @@ function renderEmployee(state) {
     logout.innerHTML = "Logout";
     logout.setAttribute("type", "button");
     logout.addEventListener("click", (event) => {
-        window.location.href = "http://localhost:8080/MerinoFullStackBank/";
+        location.reload();
     })
     employeeView.appendChild(logout);
 
@@ -319,7 +319,7 @@ function renderOpen() {
     form.setAttribute("method", "POST");
     const user = state.userName;
     const pass = state.password;
-    const url = "http://localhost:8080/MerinoFullStackBank/api/controller/open/" + user + "/" + pass;
+    const url = "api/controller/open/" + user + "/" + pass;
 
     form.setAttribute("action", url);
     form.addEventListener("submit", (event) => {
@@ -343,7 +343,7 @@ function renderOpen() {
         const password = state.password;
 
         const request = new XMLHttpRequest();
-        var url = "http://localhost:8080/MerinoFullStackBank/api/controller/open/" + userName + "/" + password;
+        var url = "api/controller/open/" + userName + "/" + password;
         request.open("POST", url);
 
 
@@ -482,7 +482,7 @@ function renderCreate() {
     const form = document.createElement("form");
     form.setAttribute("id", "createForm");
     form.setAttribute("method", "POST");
-    const url = "http://localhost:8080/MerinoFullStackBank/api/controller/create";
+    const url = "api/controller/create";
 
     form.setAttribute("action", url);
     form.addEventListener("submit", (event) => {
@@ -507,7 +507,7 @@ function renderCreate() {
 
 
         const request = new XMLHttpRequest();
-        var url = "http://localhost:8080/MerinoFullStackBank/api/controller/create";
+        var url = "api/controller/create";
         request.open("POST", url);
 
 
@@ -629,7 +629,7 @@ function renderCreate() {
     returnCustomer.innerHTML = "Return to login view";
     returnCustomer.setAttribute("type", "button");
     returnCustomer.addEventListener("click", (event) => {
-        window.location.href = "http://localhost:8080/MerinoFullStackBank/";
+        location.reload();
     })
     form.appendChild(returnCustomer);
 
@@ -695,7 +695,7 @@ function renderWithdraw() {
 
 
         const request = new XMLHttpRequest();
-        var url = "http://localhost:8080/MerinoFullStackBank/api/controller/withdraw";
+        var url = "api/controller/withdraw";
         request.open("PUT", url);
 
 
@@ -789,7 +789,7 @@ function renderDeposit() {
 
 
         const request = new XMLHttpRequest();
-        var url = "http://localhost:8080/MerinoFullStackBank/api/controller/deposit";
+        var url = "api/controller/deposit";
         request.open("PUT", url);
 
 
@@ -895,7 +895,7 @@ function renderTransfer() {
 
 
         const request = new XMLHttpRequest();
-        var url = "http://localhost:8080/MerinoFullStackBank/api/controller/transfer";
+        var url = "api/controller/transfer";
         request.open("PUT", url);
 
 
@@ -1015,7 +1015,7 @@ function renderDecide() {
 
 
         const request = new XMLHttpRequest();
-        var url = "http://localhost:8080/MerinoFullStackBank/api/controller/decide";
+        var url = "api/controller/decide";
         request.open("PUT", url);
 
 
@@ -1106,7 +1106,7 @@ function renderInfoUpdate() {
 
 
         const request = new XMLHttpRequest();
-        var url = "http://localhost:8080/MerinoFullStackBank/api/controller/infoUpdate";
+        var url = "api/controller/infoUpdate";
         request.open("PUT", url);
 
 
@@ -1198,7 +1198,7 @@ function renderPasswordUpdate() {
 
 
         const request = new XMLHttpRequest();
-        var url = "http://localhost:8080/MerinoFullStackBank/api/controller/passwordUpdate";
+        var url = "api/controller/passwordUpdate";
         request.open("PUT", url);
 
 
