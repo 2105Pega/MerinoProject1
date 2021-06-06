@@ -1,0 +1,40 @@
+body{
+    
+    background-image:url("aurora.jpg");
+    background-size: cover;
+}
+button{
+    background-color:#e1dd72;
+}
+#app {
+    background-color:#a8c66c;
+    margin: 1% 7%;
+}
+#app h3,h4{
+    text-align: center;
+}
+#loginView {
+    margin: 25%;
+    
+}
+#loginView h3 {
+    text-align: center;
+}
+
+#customerView {
+    margin: 25%;
+}
+
+#customerView h3,h4 {
+    text-align: center;
+}
+#openView {
+    margin:25%;
+}
+
+#createView {
+    margin: 25%;
+}
+#employeeView {
+    margin: 25%;
+}
