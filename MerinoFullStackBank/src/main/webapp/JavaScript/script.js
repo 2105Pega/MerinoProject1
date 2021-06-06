@@ -262,6 +262,19 @@ function renderEmployee(state) {
         employeeView.appendChild(accountTable);
         employeeView.appendChild(document.createElement("hr"));
     }
+    
+    const decideButton = document.createElement("button");
+    decideButton.innerHTML = "Approve/Deny pending accounts.";
+    employeeView.appendChild(decideButton);
+    decideButton.addEventListener("click", renderDecide);
+
+    const transaction = document.createElement("div");
+    transaction.setAttribute("id", "transaction");
+    employeeView.appendChild(transaction);
+
+    const placeholder = document.createElement("p");
+    transaction.appendChild(placeholder);
+
     const app = document.querySelector("#app");
     app.replaceChild(employeeView, document.querySelector("#app").firstElementChild);
 }
@@ -895,7 +908,125 @@ function renderTransfer() {
     const transaction = document.querySelector("#transaction");
     transaction.replaceChild(transferView, document.querySelector("#transaction").firstElementChild);
 }
+function renderDecide() {
+    const decideView = document.createElement("div");
+    decideView.setAttribute("id", "decideView");
 
+    const accountText = document.createElement("p");
+    accountText.innerHTML = "Please type the account number you wish to approve/deny.";
+    decideView.appendChild(accountText);
+
+    const accNumber = document.createElement("input");
+    accNumber.setAttribute("type", "number");
+    accNumber.setAttribute("name", "accNumber");
+    accNumber.setAttribute("id", "accNumber");
+    accNumber.required = true;
+    decideView.appendChild(accNumber);
+
+    const approve = document.createElement("input");
+    approve.setAttribute("type", "radio");
+    approve.setAttribute("name", "decision");
+    approve.setAttribute("id", "approve");
+    approve.setAttribute("value", "approve");
+
+    const labelApprove = document.createElement("label");
+    labelApprove.setAttribute("for", "approve");
+    labelApprove.innerHTML = "Approve";
+
+    decideView.appendChild(approve);
+    decideView.appendChild(labelApprove);
+
+    const deny = document.createElement("input");
+    deny.setAttribute("type", "radio");
+    deny.setAttribute("name", "decision");
+    deny.setAttribute("id", "deny");
+    deny.setAttribute("value", "deny");
+
+    const labelDeny = document.createElement("label");
+    labelDeny.setAttribute("for", "deny");
+    labelDeny.innerHTML = "Deny";
+
+    decideView.appendChild(deny);
+    decideView.appendChild(labelDeny);
+
+    decideView.appendChild(document.createElement("br"));
+    decideView.appendChild(document.createElement("br"));
+    const decide = document.createElement("button");
+    decide.setAttribute("type", "button");
+    decide.innerHTML = "Decide";
+
+    decide.addEventListener("click", (event) => {
+        event.preventDefault();
+
+        function checked(){
+            for (var choice of document.getElementsByName("decision")){
+                if (choice.checked){
+                    return true;
+               }
+               return false;
+            }
+        }
+
+
+        if (document.getElementById("accNumber").value == null || document.getElementById("accNumber").value == 0 || checked() == false ) {
+            log.textContent = "Please enter an account number and choose to approve or deny it.";
+            return;
+        }
+
+        const decAttempt = {}
+        decAttempt.userName = state.userName;
+        decAttempt.password = state.password;
+        decAttempt.accNumber = document.getElementById("accNumber").value;
+
+        for (var choice of document.getElementsByName("decision")){
+            if(choice.checked){
+                decAttempt.decision = choice.value;
+            }
+        }
+        
+
+
+        const request = new XMLHttpRequest();
+        var url = "http://localhost:8080/MerinoFullStackBank/api/controller/decide";
+        request.open("PUT", url);
+
+
+
+        console.log(JSON.stringify(decAttempt))
+        request.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
+
+        request.send(JSON.stringify(decAttempt));
+
+
+        request.onreadystatechange = function () {
+
+            if (this.readyState == 4) {
+                const serverResponse = JSON.parse(this.response);
+                console.log(JSON.parse(this.response))
+                console.log(serverResponse);
+                if (serverResponse.fail == true) {
+                    log.textContent = serverResponse.warning;
+                } else {
+                    console.log(serverResponse.userName);
+                    state = serverResponse;
+                    log.textContent = state.userName;
+                    renderEmployee(state);
+                }
+
+
+            }
+        }
+
+
+    })
+    decideView.appendChild(decide);
+
+    const log = document.createElement("p");
+    decideView.appendChild(log);
+
+    const transaction = document.querySelector("#transaction");
+    transaction.replaceChild(decideView, document.querySelector("#transaction").firstElementChild);
+}
 
 
 // function openSubmit(event) {

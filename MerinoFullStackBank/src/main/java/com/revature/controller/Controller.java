@@ -22,6 +22,7 @@ import com.revature.services.CustomerService;
 import com.revature.services.EmployeeService;
 import com.revature.services.UserService;
 import com.revature.services.tServices;
+import com.revature.transactions.DecisionAttempt;
 import com.revature.transactions.TransferAttempt;
 import com.revature.transactions.WithdrawDepositAttempt;
 import com.revature.users.CreateCustomer;
@@ -730,6 +731,97 @@ public class Controller {
 					Response response = new Response();
 					response.fail = true;
 					response.warning = "Provided user does not own this account.";
+					ObjectMapper mapper = new ObjectMapper();
+					try {
+						return mapper.writeValueAsString(response);
+					} catch (JsonProcessingException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+
+			}
+		}
+
+		return "";
+	}
+	
+	@Path("/decide")
+	@PUT
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public String decide(DecisionAttempt decAttempt) {
+		User backendUser = uServ.getUser(decAttempt.userName);
+		System.out.println("Jersey decAttempt: " + decAttempt.userName + ", password: " + decAttempt.password
+				+ ", decision:" + decAttempt.decision + ", accNumber:" + decAttempt.accNumber);
+		if (backendUser == null) {
+			Response response = new Response();
+			response.fail = true;
+			response.warning = "User for account application decision attempt could not be found.";
+			ObjectMapper mapper = new ObjectMapper();
+			try {
+				return mapper.writeValueAsString(response);
+			} catch (JsonProcessingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} else {
+			if (!backendUser.getPassword().equals(decAttempt.password)) {
+				Response response = new Response();
+				response.fail = true;
+				response.warning = "User and password for account application decision did not match.";
+				ObjectMapper mapper = new ObjectMapper();
+				try {
+					return mapper.writeValueAsString(response);
+				} catch (JsonProcessingException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			} else {
+				
+				if (backendUser.getUserType() == 2) {
+					try {
+						Employee backendEmployee = eServ.getEmployee(backendUser.getUserID());
+						String result = eServ.decideService(backendEmployee, decAttempt.accNumber, decAttempt.decision);
+						
+
+						Response response = new Response();
+						
+						response.fail = false;
+						response.warning = "Successful";
+						response.userID = backendEmployee.getUserID();
+						response.userName = backendEmployee.getUserName();
+						response.password = backendEmployee.getPassword();
+						response.firstName = backendEmployee.getFirstName();
+						response.lastName = backendEmployee.getLastName();
+						response.userType = 2;
+						response.employeeCustomerList = eServ.getCustomerList();
+						ObjectMapper mapper = new ObjectMapper();
+
+						try {
+							return mapper.writeValueAsString(response);
+						} catch (JsonProcessingException e) {
+							// TODO Auto-generated catch block
+
+							e.printStackTrace();
+						}
+					} catch (InvalidActionException e) {
+						// TODO Auto-generated catch block
+						Response response = new Response();
+						response.fail = true;
+						response.warning = e.getMessage();
+						ObjectMapper mapper = new ObjectMapper();
+						try {
+							return mapper.writeValueAsString(response);
+						} catch (JsonProcessingException e1) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+				} else {
+					Response response = new Response();
+					response.fail = true;
+					response.warning = "Only an employee can decide on pending accounts.";
 					ObjectMapper mapper = new ObjectMapper();
 					try {
 						return mapper.writeValueAsString(response);

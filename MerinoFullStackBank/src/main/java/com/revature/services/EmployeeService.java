@@ -139,6 +139,56 @@ public class EmployeeService {
 			return "Only pending accounts may be rejected.";
 		}
 	}
+	
+	public String decideService(Employee employee, int accNumber, String decision) throws InvalidActionException {
+		if (decision.equals("approve")) {
+			Account acc = accServ.getAccount(accNumber);
+			if(acc == null) {
+				throw new InvalidActionException("Account doesn't exist");
+			}
+			if (acc.getApproved().equals("Pending")) {
+				acc.setApproved("Approved");
+				if (accServ.setApproved(accNumber, "Approved")) {
+					logger.trace("Account [" + acc.getAccountNumber() + "] has been approved by " + employee.getFirstName() + " "
+							+ employee.getLastName() + ".");
+					return "Account [" + acc.getAccountNumber() + "] has been approved by " + employee.getFirstName() + " "
+					+ employee.getLastName() + ".";
+				} else {
+					throw new InvalidActionException("There was an error approving this account. Please talk to your manager.");
+				}
+				
+				
+				
+			} else {
+				throw new InvalidActionException( "Only pending accounts may be approved.");
+			}
+		} else if (decision.equals("deny")) {
+			Account acc = accServ.getAccount(accNumber);
+			if(acc == null) {
+				throw new InvalidActionException("Account doesn't exist");
+			}
+			if (acc.getApproved().equals("Pending")) {
+				if ( accServ.setApproved(accNumber, "Cancelled")) {
+					tDao.withdraw(accNumber, acc.getBalance());
+					acc.setApproved("Cancelled");
+					acc.setBalance(0);
+					logger.trace("Account [" + acc.getAccountNumber() + "] has been rejected by " + employee.getFirstName() + " "
+							+ employee.getLastName() + " and it's funds have been withdrawn.");
+					return "Account [" + acc.getAccountNumber() + "] has been rejected by " + employee.getFirstName() + " "
+							+ employee.getLastName() + " and it's funds have been withdrawn.";
+				} else {
+					throw new InvalidActionException("There was an error while rejecting the account.");
+				}
+				
+				
+			} else {
+				throw new InvalidActionException("Only pending accounts may be rejected.");
+			}
+		} else {
+			throw new InvalidActionException("Invalid decision.");
+		}
+		
+	}
 
 	public ArrayList<Customer> getCustomerList() {
 		return eDao.getCustomerList();
