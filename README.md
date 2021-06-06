@@ -13,8 +13,8 @@ Then install using
 ```bash
 git clone https://github.com/2105Pega/MerinoProject1.git
 ```
-Open your [Spring Tool Suite 4(Eclipse)](https://spring.io/tools) and set your workspace to chosenDirectoryPath/MerinoProject1. Create a new project and name it MerinoFullStackBank. The files should load to Spring tools. Right-click MerinoFullStackBank and select Maven > Update Project.
-Go to Window > Show View > Other then select Servers > server. Click add a new server in your console and select a Tomcat 9 server
+Open your [Spring Tool Suite 4(Eclipse)](https://spring.io/tools) and set your workspace to chosenDirectoryPath/MerinoProject1. Import and existing project and select existing Maven Project in the corrent folder.  The files should load to Spring tools. Right-click MerinoFullStackBank and select Maven > Update Project.
+Go to Window > Show View > Other then select Servers > server. Click add a new server in your console and select a [Tomcat 9](https://tomcat.apache.org/download-90.cgi) server.
 
 ## Usage
 
