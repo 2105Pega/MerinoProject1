@@ -25,11 +25,16 @@ function loginSubmit(event) {
             console.log(serverResponse);
             if (serverResponse.fail == true) {
                 log.textContent = serverResponse.warning;
-            } else {
+            } else if (serverResponse.userType == 1) {
                 console.log(serverResponse.userName);
                 state = serverResponse;
                 log.textContent = state.userName;
                 renderCustomer(state);
+            } else {
+                console.log(serverResponse.userName);
+                state = serverResponse;
+                log.textContent = state.userName;
+                renderEmployee(state);
             }
 
 
@@ -164,6 +169,97 @@ function renderCustomer(state) {
 
 }
 
+function renderEmployee(state) {
+    const employeeView = document.createElement("div");
+    employeeView.setAttribute("id", "employeeView");
+
+    const welcome = document.createElement("h3");
+    welcome.innerHTML = "Welcome " + state.firstName + " " + state.lastName + ".";
+    employeeView.appendChild(welcome);
+
+    for (var customer of state.employeeCustomerList) {
+
+        const userMessage = document.createElement("h4");
+        userMessage.innerHTML = "We have a customer listed under username: " + customer.userName + ".";
+        employeeView.appendChild(userMessage);
+
+        const personal = document.createElement("p");
+        personal.innerHTML = "We have their personal information listed as: <br> User ID: " + customer.userID + " <br> Name: " + customer.firstName + " " + customer.lastName + " <br> Address: " + customer.address + " <br> Phone number: " + customer.phone;
+        employeeView.appendChild(personal);
+
+        const accountHeader = document.createElement("h4");
+        accountHeader.innerHTML = "Current Accounts";
+        employeeView.appendChild(accountHeader);
+
+        const accountTable = document.createElement("table");
+        accountTable.setAttribute("id", "accountTable" + customer.userID);
+        const headRow = accountTable.insertRow(0);
+
+        // Insert new cells (<td> elements) at the 1st and 2nd position of the "new" <tr> element:
+        const cell1 = headRow.insertCell(0).outerHTML = "<th>Account number</th>";
+        const cell2 = headRow.insertCell(1).outerHTML = "<th>Account type</th>";
+        const cell3 = headRow.insertCell(2).outerHTML = "<th>Account balance</th>";
+        const cell4 = headRow.insertCell(3).outerHTML = "<th>Account status</th>";
+        // Add some text to the new cells:
+        // cell1.innerHTML = "NEW CELL1";
+        // cell2.innerHTML = "NEW CELL2";
+
+        for (let i = 0; i < customer.numberOfAccounts; i++) {
+            console.log(i);
+            console.log(customer.accountList[i]);
+            console.log(customer);
+            console.log(accountTable.getAttribute("id"));
+
+            const accRequest = new XMLHttpRequest();
+
+            accRequest.onreadystatechange = function () {
+
+                if (this.readyState == 4) {
+                    const serverResponse = JSON.parse(this.response);
+                    console.log(JSON.parse(this.response))
+                    console.log(serverResponse);
+                    if (serverResponse.fail == true) {
+                        logger.textContent = serverResponse.warning;
+                    } else {
+                        console.log(serverResponse.accountNumber);
+                        accountResponse = serverResponse;
+                        const accTab = document.querySelector("#accountTable" + customer.userID);
+
+                        const row = accTab.insertRow();
+
+                        const accNum = row.insertCell(0);
+                        accNum.innerHTML = accountResponse.accountNumber;
+
+                        const accType = row.insertCell(1);
+                        accType.innerHTML = accountResponse.accountType;
+
+                        const bal = row.insertCell(2);
+                        bal.innerHTML = "$" + accountResponse.balance;
+
+                        const stat = row.insertCell(3);
+                        stat.innerHTML = accountResponse.approved;
+
+                    }
+
+
+                }
+            }
+
+            const user = customer.userName;
+            const password = customer.password;
+            const acc = customer.accountList[i];
+            const url = "http://localhost:8080/MerinoFullStackBank/api/controller/account/" + user + "/" + password + "/" + acc;
+            accRequest.open("GET", url);
+            accRequest.send();
+
+        }
+        employeeView.appendChild(accountTable);
+        employeeView.appendChild(document.createElement("hr"));
+    }
+    const app = document.querySelector("#app");
+    app.replaceChild(employeeView, document.querySelector("#app").firstElementChild);
+}
+
 function renderOpen() {
     const openView = document.createElement("div");
     openView.setAttribute("id", "openView");
@@ -183,12 +279,12 @@ function renderOpen() {
     form.setAttribute("action", url);
     form.addEventListener("submit", (event) => {
         const openAcc = {}
-        
-        
+
+
         const radioOptions = document.getElementsByName("accType");
-        for(i = 0; i < radioOptions.length; i++) {
-            if(radioOptions[i].checked)
-            openAcc.accType = radioOptions[i].value;
+        for (i = 0; i < radioOptions.length; i++) {
+            if (radioOptions[i].checked)
+                openAcc.accType = radioOptions[i].value;
         }
         openAcc.balance = document.getElementById("balance").value;
         openAcc.joint = document.getElementById("joint").value;
@@ -224,7 +320,7 @@ function renderOpen() {
         // send request
         request.send(JSON.stringify(openAcc));
 
-        
+
         // request.send(data);
 
         request.onreadystatechange = function () {
@@ -347,14 +443,14 @@ function renderCreate() {
     form.addEventListener("submit", (event) => {
         event.preventDefault();
         const createCus = {}
-        
-        
+
+
         createCus.user = document.getElementById("user").value;
         createCus.password = document.getElementById("password").value;
         createCus.fName = document.getElementById("fName").value;
         createCus.lName = document.getElementById("lName").value;
         const confirmPassword = document.getElementById("confirmPassword").value;
-        if(confirmPassword != createCus.password) {
+        if (confirmPassword != createCus.password) {
             log.textContent = "The passwords didn't match";
             return;
         }
@@ -363,7 +459,7 @@ function renderCreate() {
         event.preventDefault();
 
         // configure a request
-        
+
 
         const request = new XMLHttpRequest();
         var url = "http://localhost:8080/MerinoFullStackBank/api/controller/create";
@@ -388,7 +484,7 @@ function renderCreate() {
         // send request
         request.send(JSON.stringify(createCus));
 
-        
+
         // request.send(data);
 
         request.onreadystatechange = function () {
@@ -487,7 +583,7 @@ function renderCreate() {
     const returnCustomer = document.createElement("button");
     returnCustomer.innerHTML = "Return to login view";
     returnCustomer.addEventListener("click", (event) => {
-        window.location.href= "http://localhost:8080/MerinoFullStackBank/";
+        window.location.href = "http://localhost:8080/MerinoFullStackBank/";
     })
     form.appendChild(returnCustomer);
 
@@ -537,14 +633,14 @@ function renderWithdraw() {
     withdraw.setAttribute("type", "button");
     withdraw.innerHTML = "Withdraw funds";
 
-    withdraw.addEventListener("click", (event)=>{
+    withdraw.addEventListener("click", (event) => {
         event.preventDefault();
-        
-        if(document.getElementById("amount").value == null || document.getElementById("amount").value == 0 || document.getElementById("accNumber").value == null ||document.getElementById("accNumber").value == 0){
+
+        if (document.getElementById("amount").value == null || document.getElementById("amount").value == 0 || document.getElementById("accNumber").value == null || document.getElementById("accNumber").value == 0) {
             log.textContent = "Please enter an amount and account number.";
             return;
         }
-        
+
         const withAttempt = {}
         withAttempt.userName = state.userName;
         withAttempt.password = state.password;
@@ -560,7 +656,7 @@ function renderWithdraw() {
 
         console.log(JSON.stringify(withAttempt))
         request.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
-        
+
         request.send(JSON.stringify(withAttempt));
 
 
@@ -631,14 +727,14 @@ function renderDeposit() {
     deposit.setAttribute("type", "button");
     deposit.innerHTML = "Deposit funds";
 
-    deposit.addEventListener("click", (event)=>{
+    deposit.addEventListener("click", (event) => {
         event.preventDefault();
-        
-        if(document.getElementById("amount").value == null || document.getElementById("amount").value == 0 || document.getElementById("accNumber").value == null ||document.getElementById("accNumber").value == 0){
+
+        if (document.getElementById("amount").value == null || document.getElementById("amount").value == 0 || document.getElementById("accNumber").value == null || document.getElementById("accNumber").value == 0) {
             log.textContent = "Please enter an amount and account number.";
             return;
         }
-        
+
         const depAttempt = {}
         depAttempt.userName = state.userName;
         depAttempt.password = state.password;
@@ -654,7 +750,7 @@ function renderDeposit() {
 
         console.log(JSON.stringify(depAttempt))
         request.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
-        
+
         request.send(JSON.stringify(depAttempt));
 
 
@@ -736,14 +832,14 @@ function renderTransfer() {
     transfer.setAttribute("type", "button");
     transfer.innerHTML = "Transfer funds";
 
-    transfer.addEventListener("click", (event)=>{
+    transfer.addEventListener("click", (event) => {
         event.preventDefault();
-        
-        if(document.getElementById("amount").value == null || document.getElementById("amount").value == 0 || document.getElementById("senderNumber").value == null ||document.getElementById("senderNumber").value == 0 || document.getElementById("receiverNumber").value == null ||document.getElementById("receiverNumber").value == 0){
+
+        if (document.getElementById("amount").value == null || document.getElementById("amount").value == 0 || document.getElementById("senderNumber").value == null || document.getElementById("senderNumber").value == 0 || document.getElementById("receiverNumber").value == null || document.getElementById("receiverNumber").value == 0) {
             log.textContent = "Please enter an amount and both account numbers.";
             return;
         }
-        
+
         const transAttempt = {}
         transAttempt.userName = state.userName;
         transAttempt.password = state.password;
@@ -760,7 +856,7 @@ function renderTransfer() {
 
         console.log(JSON.stringify(transAttempt))
         request.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
-        
+
         request.send(JSON.stringify(transAttempt));
 
 

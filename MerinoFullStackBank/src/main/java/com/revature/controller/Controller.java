@@ -19,12 +19,14 @@ import com.revature.exceptions.InvalidActionException;
 import com.revature.responses.Response;
 import com.revature.services.AccountService;
 import com.revature.services.CustomerService;
+import com.revature.services.EmployeeService;
 import com.revature.services.UserService;
 import com.revature.services.tServices;
 import com.revature.transactions.TransferAttempt;
 import com.revature.transactions.WithdrawDepositAttempt;
 import com.revature.users.CreateCustomer;
 import com.revature.users.Customer;
+import com.revature.users.Employee;
 import com.revature.users.User;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -36,41 +38,9 @@ public class Controller {
 	private CustomerService cServ = new CustomerService();
 	private AccountService accServ = new AccountService();
 	private tServices tServ = new tServices();
+	private EmployeeService eServ = new EmployeeService();
 
-//	@Path("/login")
-//	@POST
-//	@Produces(MediaType.APPLICATION_JSON)
-//	@Consumes(MediaType.APPLICATION_JSON)
-//	public String login(User user) {
-//
-//		User backendUser = uServ.getUser(user.getUserName());
-//		if (user.getPassword().equals(backendUser.getPassword())) {
-//
-//			ObjectMapper mapper = new ObjectMapper();
-//
-//			try {
-//				return mapper.writeValueAsString(backendUser);
-//			} catch (JsonProcessingException e) {
-//				// TODO Auto-generated catch block
-//
-//				e.printStackTrace();
-//			}
-//		} else {
-//			Response response = new Response();
-//			response.fail = true;
-//			response.warning = "Username/Password didn't match";
-//			ObjectMapper mapper = new ObjectMapper();
-//			try {
-//				return mapper.writeValueAsString(response);
-//			} catch (JsonProcessingException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//
-//		}
-//		return "";
-//
-//	}
+
 
 	@Path("/login/{user}/{pass}")
 	@GET
@@ -114,6 +84,38 @@ public class Controller {
 				} catch (JsonProcessingException e) {
 					// TODO Auto-generated catch block
 
+					e.printStackTrace();
+				}
+			} else if(backendUser.getUserType() == 2) {
+				Response response = new Response();
+				Employee backendEmployee = eServ.getEmployee(backendUser.getUserID());
+				response.fail = false;
+				response.warning = "Successful";
+				response.userID = backendEmployee.getUserID();
+				response.userName = backendEmployee.getUserName();
+				response.password = backendEmployee.getPassword();
+				response.firstName = backendEmployee.getFirstName();
+				response.lastName = backendEmployee.getLastName();
+				response.userType = 2;
+				response.employeeCustomerList = eServ.getCustomerList();
+				ObjectMapper mapper = new ObjectMapper();
+
+				try {
+					return mapper.writeValueAsString(response);
+				} catch (JsonProcessingException e) {
+					// TODO Auto-generated catch block
+
+					e.printStackTrace();
+				}
+			} else {
+				Response response = new Response();
+				response.fail = true;
+				response.warning = "Administrator login not implemented yet.";
+				ObjectMapper mapper = new ObjectMapper();
+				try {
+					return mapper.writeValueAsString(response);
+				} catch (JsonProcessingException e) {
+					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}

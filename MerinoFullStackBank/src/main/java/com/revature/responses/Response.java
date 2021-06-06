@@ -2,6 +2,8 @@ package com.revature.responses;
 
 import java.util.ArrayList;
 
+import com.revature.users.Customer;
+
 public class Response {
 	public boolean fail;
 	public String warning;
@@ -20,4 +22,5 @@ public class Response {
 	public double balance;
 	public String approved;
 	public ArrayList<Integer> customerList;
+	public ArrayList<Customer> employeeCustomerList;
 }

@@ -7,7 +7,7 @@ public class Customer extends User {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -5125388050983655948L;
+	
 	
 	
 	private String address;
@@ -15,10 +15,15 @@ public class Customer extends User {
 	private ArrayList<Integer> accountList;
 	private int numberOfAccounts;
 	
+	
+	
 	@Override
 	public String toString() {
 		return "Customer [address=" + address + ", phone=" + phone + ", accountList=" + accountList
 				+ ", numberOfAccounts=" + numberOfAccounts + "]";
+	}
+	public Customer() {
+		
 	}
 	public Customer(int userID, String user, String pass, String firstName, String lastName) {
 		super(userID, user, pass, firstName, lastName);
@@ -76,6 +81,12 @@ public class Customer extends User {
 	public void removeAccount(int deletedAccount) {
 		this.accountList.remove(deletedAccount);
 		numberOfAccounts--;
+	}
+	public void setAccountList(ArrayList<Integer> accountList) {
+		this.accountList = accountList;
+	}
+	public void setNumberOfAccounts(int numberOfAccounts) {
+		this.numberOfAccounts = numberOfAccounts;
 	}
 	
 
