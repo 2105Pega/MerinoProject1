@@ -241,7 +241,7 @@ function renderEmployee(state) {
                         console.log(JSON.parse(this.response))
                         console.log(serverResponse);
                         if (serverResponse.fail == true) {
-                            logger.textContent = serverResponse.warning;
+                            placeholder.textContent = serverResponse.warning;
                         } else {
                             console.log(serverResponse.accountNumber);
                             accountResponse = serverResponse;
