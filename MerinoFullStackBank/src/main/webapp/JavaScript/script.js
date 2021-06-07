@@ -46,7 +46,7 @@ function loginSubmit(event) {
     // request.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
     // request.send(JSON.stringify(user));
     request.send();
-    log.textContent = `Submitted! Time stamp: ${event.timeStamp}`;
+    log.textContent = `Submitted! Time stamp: ${Date.now()}`;
 }
 
 const form = document.getElementById("login");
@@ -365,7 +365,7 @@ function renderOpen() {
         request.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
         // send request
         request.send(JSON.stringify(openAcc));
-
+        log.textContent = `Submitted! Time stamp: ${Date.now()}`;
 
         // request.send(data);
 
@@ -529,7 +529,7 @@ function renderCreate() {
         request.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
         // send request
         request.send(JSON.stringify(createCus));
-
+        log.textContent = `Submitted! Time stamp: ${Date.now()}`;
 
         // request.send(data);
 
@@ -705,7 +705,7 @@ function renderWithdraw() {
         request.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
 
         request.send(JSON.stringify(withAttempt));
-
+        log.textContent = `Submitted! Time stamp: ${Date.now()}`;
 
         request.onreadystatechange = function () {
 
@@ -799,7 +799,7 @@ function renderDeposit() {
         request.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
 
         request.send(JSON.stringify(depAttempt));
-
+        log.textContent = `Submitted! Time stamp: ${Date.now()}`;
 
         request.onreadystatechange = function () {
 
@@ -905,7 +905,7 @@ function renderTransfer() {
         request.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
 
         request.send(JSON.stringify(transAttempt));
-
+        log.textContent = `Submitted! Time stamp: ${Date.now()}`;
 
         request.onreadystatechange = function () {
 
@@ -1025,7 +1025,7 @@ function renderDecide() {
         request.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
 
         request.send(JSON.stringify(decAttempt));
-
+        log.textContent = `Submitted! Time stamp: ${Date.now()}`;
 
         request.onreadystatechange = function () {
 
@@ -1116,7 +1116,7 @@ function renderInfoUpdate() {
         request.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
 
         request.send(JSON.stringify(infoUpdateAttempt));
-
+        log.textContent = `Submitted! Time stamp: ${Date.now()}`;
 
         request.onreadystatechange = function () {
 
@@ -1208,7 +1208,7 @@ function renderPasswordUpdate() {
         request.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
 
         request.send(JSON.stringify(passwordUpdateAttempt));
-
+        log.textContent = `Submitted! Time stamp: ${Date.now()}`;
 
         request.onreadystatechange = function () {
 
