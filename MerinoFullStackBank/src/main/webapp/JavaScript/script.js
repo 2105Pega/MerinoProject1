@@ -130,6 +130,7 @@ function renderCustomer(state) {
         const url = "api/controller/account/" + user + "/" + password + "/" + acc;
         accRequest.open("GET", url);
         accRequest.send();
+        
 
     }
     customerView.appendChild(accountTable);
